@@ -1,0 +1,63 @@
+// filled badge with label
+
+.MuiChip-root.impact_badges_only_label_filled {
+  height: 24px;
+  background: $grayBadge;
+  padding: 0 8px;
+  max-width: max-content;
+  cursor: default;
+  .MuiChip-label {
+    padding: 0px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    font-family: $fontFamily;
+    color: $whiteColor;
+  }
+  &.small-badge {
+    height: 20px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    cursor: default !important;
+  }
+
+  &:hover {
+    background: $grayBadge;
+  }
+}
+
+.MuiChip-root.info-badge-filled {
+  background: $primaryBadge;
+  &:hover {
+    background: $primaryBadge;
+  }
+}
+
+.MuiChip-root.success-badge-filled {
+  background: $greenBadge;
+  &:hover {
+    background: $greenBadge;
+  }
+}
+
+.MuiChip-root.warning-badge-filled {
+  background: $yellowBadge;
+  &:hover {
+    background: $yellowBadge;
+  }
+  .MuiChip-label {
+    color: $mainFontColor;
+  }
+  & svg {
+    color: $mainFontColor !important;
+  }
+}
+
+.MuiChip-root.error-badge-filled {
+  background: $redBadge;
+  &:hover {
+    background: $redBadge;
+  }
+}

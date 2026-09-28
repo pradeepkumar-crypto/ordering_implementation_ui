@@ -1,0 +1,414 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-stepper {
+  font-family: $fontFamily !important;
+  width: 100%;
+  &.MuiStepContent-root {
+    margin-left: 12px;
+    padding-left: 20px;
+    padding-right: 8px;
+    border-left: none;
+    position: absolute;
+    bottom: 0;
+  }
+  &.MuiBox-root {
+    max-width: none;
+  }
+  &.ia-stepper {
+    font-family: $fontFamily;
+
+    .MuiStep-horizontal {
+      background: $whiteColor;
+      border-radius: 8px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      padding-right: 12px;
+      position: relative;
+      cursor: pointer;
+      width: 100%;
+    }
+    .MuiStepLabel-iconContainer {
+      .MuiSvgIcon-root.Mui-active {
+        color: $primaryColor;
+        background: $primaryColor;
+        border-radius: 8px;
+        width: 24px;
+        height: 24px;
+        .MuiStepIcon-text {
+          font-family: $fontFamily;
+          fill: $whiteColor;
+        }
+      }
+      .MuiSvgIcon-root {
+        color: #d9dde7;
+        background: #d9dde7;
+        border-radius: 8px;
+        width: 24px;
+        height: 24px;
+        .MuiStepIcon-text {
+          font-family: $fontFamily;
+          fill: #7a8294;
+          font-weight: 800;
+        }
+      }
+      .MuiSvgIcon-root.Mui-completed {
+        color: #3bb273;
+        background: #3bb273 url("../../assets/checkmark.svg") no-repeat;
+        background-size: 16px;
+        background-position: center;
+        border-radius: 8px;
+        width: 24px;
+        height: 24px;
+        position: relative;
+      }
+    }
+
+    .MuiStepLabel-vertical {
+      .MuiStepLabel-iconContainer {
+        .MuiSvgIcon-root.Mui-active {
+          color: $primaryColor;
+          background: $primaryColor;
+          width: 20px;
+          height: 20px;
+          .MuiStepIcon-text {
+            fill: $whiteColor;
+          }
+        }
+
+        .MuiSvgIcon-root {
+          color: #7a8294;
+          background: #7a8294;
+          width: 20px;
+          height: 20px;
+          .MuiStepIcon-text {
+            fill: #ffffff;
+            font-weight: 700;
+          }
+        }
+
+        .MuiSvgIcon-root.Mui-completed {
+          color: #3bb273;
+          background: #3bb273;
+          background-image: url("../../assets/checkmark.svg");
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 12px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .MuiStepLabel-labelContainer {
+      .MuiStepLabel-label {
+        font-family: $fontFamily;
+        font-weight: 500;
+        max-width: 200px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        &.Mui-active {
+          color: #4259ee;
+        }
+        &.Mui-completed {
+          color: #3bb273;
+        }
+      }
+    }
+  }
+
+  .MuiTypography-caption {
+    font-family: $fontFamily;
+  }
+
+  .MuiStepLabel-label.Mui-completed
+    + .MuiTypography-root.MuiTypography-caption {
+    color: #3bb273;
+  }
+
+  .MuiStepLabel-label.Mui-active + .MuiTypography-root.MuiTypography-caption {
+    color: #4259ee;
+  }
+
+  .MuiStepConnector-line {
+    border-color: #b4bac7;
+    border-style: dashed;
+    width: 23px;
+  }
+  .MuiStep-horizontal:has(.Mui-active) {
+    border-bottom: 2px solid $primaryColor !important;
+    &::before {
+      content: " ";
+      width: 13px;
+      height: 10px;
+      position: absolute;
+      left: 18px;
+      bottom: -10px;
+      background: url("../../assets/stepper-triangle.svg") no-repeat;
+      background-size: 13px;
+    }
+  }
+  .MuiStep-root:has(.Mui-completed) {
+    border-bottom: 2px solid $greenBadge !important;
+  }
+  .MuiStep-vertical {
+    padding: 10px 15px 10px 12px;
+    border-radius: 3px;
+    &.Mui-completed {
+      background: #ebf7f1;
+      border: 1px solid #ebf7f1 !important;
+    }
+  }
+
+  .MuiStep-vertical:has(.Mui-active) {
+    background: #eceefd;
+    border: 1px solid #eceefd !important;
+    &::before {
+      content: " ";
+      width: 5px;
+      height: 25px;
+      position: absolute;
+      background: url("../../assets/stepper-vertical.svg") no-repeat;
+      background-size: contain;
+      margin-left: -20px;
+      margin-top: 10px;
+    }
+  }
+
+  .MuiStep-vertical:has(.Mui-disabled) {
+    background: #eff2fa;
+    border: 1px solid #eff2fa !important;
+  }
+
+  .css-14sza3e-MuiStepLabel-root {
+    padding: 0px !important;
+  }
+
+  &.progress {
+    .progress-steps {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 32px;
+      width: 36%;
+
+      .step {
+        height: 8px;
+        flex: 1;
+        border-radius: 4px;
+        background-color: $lightBlueColor;
+        transition: background-color 0.3s ease;
+
+        &.active,
+        &.completed {
+          background-color: $primaryColor;
+        }
+      }
+    }
+
+    .step-labels {
+      display: flex;
+      justify-content: space-between;
+
+      .step-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6b7280;
+        transition: color 0.3s ease;
+        cursor: pointer;
+
+        &.active {
+          color: #3649c6;
+        }
+
+        &.completed {
+          color: #3649c6;
+        }
+      }
+    }
+  }
+
+  &.numbered {
+    .numbered-steps {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+      align-items: center;
+
+      .step {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #e8e8e8;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+
+        &.active {
+          background-color: #3649c6;
+          color: #fff;
+        }
+
+        &:not(:last-child)::after {
+          content: "";
+          position: absolute;
+          right: -16px;
+          width: 16px;
+          height: 2px;
+          background-color: #e8e8e8;
+        }
+      }
+    }
+  }
+
+  &.labeled {
+    .labeled-steps {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+      align-items: center;
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .step-number {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background-color: #e8e8e8;
+          color: #666;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .step-label {
+          font-size: 14px;
+          color: #666;
+          transition: color 0.3s ease;
+        }
+
+        &.active {
+          .step-number {
+            background-color: #3649c6;
+            color: #fff;
+          }
+
+          .step-label {
+            color: #1a1a1a;
+            font-weight: 600;
+          }
+        }
+
+        &:not(:last-child)::after {
+          content: "";
+          display: block;
+          width: 24px;
+          height: 1px;
+          background-color: #e8e8e8;
+          margin-left: 8px;
+        }
+      }
+    }
+  }
+}
+
+.ia-stepper-classic {
+  padding: 20px 0;
+
+  .stepper-steps {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+
+    &:last-child {
+      flex: 0;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #e5e7eb;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .step-content {
+      margin-left: 12px;
+
+      .step-label {
+        font-weight: 500;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .step-description {
+        color: #9ca3af;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+    }
+
+    .step-connector {
+      position: absolute;
+      top: 16px;
+      left: 32px;
+      right: 0;
+      height: 2px;
+      background-color: #e5e7eb;
+      z-index: 0;
+    }
+
+    &.active {
+      .step-number {
+        background-color: #3b82f6;
+        color: white;
+      }
+
+      .step-label {
+        color: #111827;
+      }
+    }
+
+    &.completed {
+      .step-number {
+        background-color: #10b981;
+        color: white;
+      }
+
+      .step-connector {
+        background-color: #10b981;
+      }
+
+      .step-label {
+        color: #111827;
+      }
+    }
+  }
+}

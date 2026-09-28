@@ -1,0 +1,53 @@
+@import "../../styles/index.scss";
+
+.progressbar_layout {
+  //   margin: 0 40px;
+  //   width: 100%;
+  min-width: 232px;
+}
+
+.progress_container {
+  .progressbar_label_container {
+    color: $grayBadge;
+    font-size: 12px;
+    font-weight: $normalFontWeight;
+    margin-bottom: 4px;
+  }
+  .progressbar_status {
+    .MuiLinearProgress-root {
+      height: 8px;
+      background-color: $textButtonPrimaryBg;
+      border-radius: 10px;
+    }
+    .MuiLinearProgress-bar {
+      background-color: $primaryColor;
+      border-radius: 8px;
+    }
+  }
+}
+
+// Styles success starts
+
+.progress_container_success {
+  .progressbar_label_container {
+    color: $greenBadge;
+  }
+  .progressbar_status {
+    .MuiLinearProgress-bar {
+      background-color: $greenBadge;
+    }
+  }
+}
+
+// Styles error starts
+
+.progress_container_error {
+  .progressbar_label_container {
+    color: $redBadge;
+  }
+  .progressbar_status {
+    .MuiLinearProgress-bar {
+      background-color: $redBadge;
+    }
+  }
+}

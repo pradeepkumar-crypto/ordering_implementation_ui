@@ -1,0 +1,228 @@
+@import "../../styles/index.scss";
+/* checkbox custom starts here  */
+
+.impact-form-checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0px !important;
+
+  .MuiCheckbox-root.impact-checkbox-container {
+    padding: 4px !important;
+    background: #ffffff;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid $deactivateColor;
+    margin-right: 7px;
+  }
+
+  .MuiCheckbox-root.impact-checkbox-container > svg {
+    width: 21px;
+    height: 21px;
+    fill: transparent;
+  }
+
+  .MuiCheckbox-root.default-variant.Mui-checked {
+    background: $lightBlueColor url("../../assets/tick.svg") no-repeat;
+    background-size: 10px;
+    background-position: center;
+    border: 1px solid $primaryColor;
+  }
+
+  .MuiCheckbox-root.default-variant.Mui-checked.Mui-disabled {
+    background: $disabledSecondaryBg url("../../assets/tick-disabled.svg")
+      no-repeat;
+    border: 1px solid $disabledSecondaryBorder;
+    background-size: cover;
+    background-size: 10px;
+    background-position: center;
+  }
+
+  .MuiCheckbox-root.dashed-variant.Mui-checked {
+    background: $lightBlueColor url("../../assets/checkbox-dash.svg") no-repeat !important;
+    border: 1px solid $primaryColor !important;
+    background-size: 10px !important;
+    background-position: center !important;
+  }
+
+  .MuiCheckbox-root.dashed-variant.Mui-checked.Mui-disabled {
+    background: $disabledSecondaryBg
+      url("../../assets/checkbox-dash-disabled.svg") no-repeat !important;
+    border: 1px solid $disabledSecondaryBorder !important;
+    background-size: cover !important;
+    background-size: 10px !important;
+    background-position: center !important;
+  }
+
+  .MuiFormControlLabel-root {
+    margin-left: 0px;
+  }
+
+  .MuiCheckbox-colorPrimary.impact_checkbox_custom.Mui-checked > svg {
+    fill: $lightBlueColor;
+    display: none;
+  }
+
+  .MuiCheckbox-root.Mui-disabled {
+    pointer-events: none;
+    border: 1px solid #d9dde7;
+    background-color: #f8f9fb;
+  }
+
+  .MuiCheckbox-root.MuiTypography-root {
+    font-family: $fontFamily;
+    font-weight: $normalFontWeight;
+  }
+
+  .MuiCheckbox-root.impact_checkbox_custom:hover {
+    border: 1px solid $primaryColor !important;
+  }
+  .MuiFormControlLabel-root:hover .impact_checkbox_custom {
+    border: 1px solid $primaryColor !important;
+  }
+
+  .MuiCheckbox-root.checkbox_custom:hover::after {
+    background: #fff;
+  }
+
+  .MuiCheckbox-root.MuiCheckbox-colorPrimary.impact_checkbox_custom.Mui-checked::after {
+    display: none;
+  }
+  .MuiCheckbox-root.impact_checkbox_custom.Mui-checked.Mui-disabled > svg {
+    fill: #efefef;
+  }
+
+  .MuiCheckbox-root.impact_checkbox_custom.impact_checkbox_dash.Mui-checked.Mui-disabled
+    > svg {
+    fill: #efefef;
+  }
+
+  .MuiCheckbox-root.impact_checkbox_custom.Mui-disabled::after {
+    background: #efefef;
+    border: 1px solid #d4d4d4;
+  }
+
+  .MuiCheckbox-root.impact_checkbox_custom:hover {
+    background-color: rgba(255, 255, 255, 0) !important;
+  }
+
+  .MuiTypography-root:hover .impact_checkbox_custom {
+    display: none !important;
+  }
+  .MuiFormControlLabel-asterisk {
+    color: #da1e28;
+  }
+
+  .impact-checkbox-label-with-required {
+    display: flex;
+    gap: 4px;
+    align-items: flex-start;
+    span {
+      color: $redBadge;
+    }
+  }
+  .MuiFormControlLabel-label {
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #7a8294;
+    font-family: $fontFamily;
+  }
+
+  .impact-checkbox-label {
+    font-family: $fontFamily;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #7a8294;
+  }
+  .impact-checkbox-label.checked {
+    color: #0d152c;
+  }
+
+  .impact-checkbox-label.disabled {
+    color: #b4bac7;
+  }
+}
+
+.impact-form-checkbox-container.checked {
+  .MuiFormControlLabel-label {
+    color: #0d152c;
+  }
+}
+
+.MuiFormControlLabel-label.Mui-disabled {
+  color: #b4bac7 !important;
+}
+
+.impact-form-checkbox {
+  display: flex;
+  align-items: center;
+
+  .MuiCheckbox-root.impact-checkbox-container {
+    margin-right: 2px;
+    cursor: pointer;
+  }
+}
+
+.impact-arrow-button {
+  color: #60697d;
+  cursor: pointer;
+  font-size: 16px !important;
+}
+
+.impact-arrow-button.up {
+  transform: rotate(180deg);
+}
+
+.ia-styles.ia-checkbox-menu {
+  .MuiPaper-root {
+    background: #fff;
+    border: 1px solid $menuBorderColor;
+    box-shadow: 0px 1px 6px 0px rgba(26, 39, 124, 0.14);
+    border-radius: 12px;
+    padding: 0 6px;
+    max-height: 180px;
+    min-width: 240px;
+    margin-top: 4px;
+    margin-left: 7px;
+  }
+  .MuiList-root {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .MuiButtonBase-root {
+    font-size: 14px;
+    color: $mainFontColor;
+    font-family: $fontFamily;
+    font-weight: $normalFontWeight;
+    line-height: 20px;
+    height: 35px;
+    font-size: 14px;
+    padding: 0 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    &.Mui-focusVisible {
+      background-color: transparent;
+    }
+
+    &:hover {
+      background: #f5f6fa;
+      border-radius: 8px;
+      color: $mainFontColor;
+    }
+  }
+  .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
+    background-color: #eceefd;
+    border-radius: 8px;
+  }
+}

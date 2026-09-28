@@ -1,0 +1,6 @@
+key,label,css_var,hex
+sourcing,Sourcing Team,--team-sourcing,#A16207
+inv_smart,Inventory Smart Team,--team-inv-smart,#0EA5E9
+ada,ADA Team,--team-ada,#9333EA
+dataflow,Dataflow Sync,--team-dataflow,#7C3AED
+ordering,Ordering Team,--indigo,#4A55E8

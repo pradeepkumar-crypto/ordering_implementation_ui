@@ -1,0 +1,52 @@
+.impact_toast.MuiChip-root {
+  border-radius: 4px;
+  height: 26px;
+  background: #ebecf0;
+  color: #758490;
+  font-size: 12px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+}
+.impact_toast.MuiChip-root.small_chip {
+  height: 22px;
+  padding: 2px 4px;
+}
+.impact_toast.MuiChip-root span {
+  padding: 0px;
+}
+.impact_toast.MuiChip-root.MuiChip-deletable span {
+  padding-right: 8px;
+}
+.impact_toast.MuiChip-root.MuiChip-deletable svg.MuiChip-deleteIcon {
+  width: 16px;
+  height: 16px;
+  margin: 0px;
+}
+.impact_toast.MuiChip-root.small_chip svg.MuiChip-deleteIcon {
+  width: 12px;
+  height: 12px;
+  margin: 0px;
+}
+.impact_toast.MuiChip-root.MuiChip-deletable:hover {
+  background: #e2e4ed;
+  cursor: pointer;
+}
+.impact_toast.MuiChip-root.Mui-disabled {
+  background: #efefef;
+  color: #c7c7c7;
+  opacity: 1;
+}
+.impact_chip_layout {
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  flex-direction: column;
+  border: 1px solid #d4d4d4;
+  width: 100%;
+  margin: 0 15px !important;
+}
+.impact_chip_layout h1 {
+  font-weight: 600;
+  margin-bottom: 15px;
+}

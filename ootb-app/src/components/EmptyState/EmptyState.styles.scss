@@ -1,0 +1,73 @@
+@import "../../styles/index.scss";
+
+.impact_emptystate {
+  border: 1px solid $StepperBorder;
+  width: 884px;
+  height: 419px;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #fff;
+  .impact_center_svg {
+    background: url("../../assets/emptystate-bg.svg") no-repeat;
+    width: 192px;
+    height: 214px;
+    background-size: cover;
+  }
+  .impact_center_svg_with_icon {
+    background: none;
+  }
+  .impact_heading {
+    font-size: 20px;
+    font-weight: $BoldFontWeight;
+    color: $mainFontColor;
+  }
+  .impact_paragraph {
+    font-size: 16px;
+    margin-top: 6px;
+    color: $grayBadge;
+    margin-bottom: 40px;
+    width: 650px;
+    text-align: center;
+    line-height: 21px;
+    margin-top: 12px;
+  }
+  .bottom_cta_container {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+
+    // Both the buttons needs to be replaced with design system buttons
+
+    .primary_btn {
+      cursor: pointer;
+      border: none;
+      text-transform: capitalize;
+      font-size: 14px;
+      border-radius: 8px;
+      height: 32px;
+      padding: 6px 12px;
+      box-sizing: border-box;
+      font-weight: 500;
+      line-height: 20px;
+    }
+    .secondary_btn {
+      cursor: pointer;
+      background: #ffffff;
+      color: #1f2b4d;
+      border: 1px solid #c3c8d4;
+      text-transform: capitalize;
+      font-size: 14px;
+      border-radius: 8px;
+      height: 32px;
+      padding: 6px 12px;
+      box-sizing: border-box;
+      font-weight: 500;
+      line-height: 20px;
+    }
+  }
+}

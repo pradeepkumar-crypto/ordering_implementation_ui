@@ -1,0 +1,41 @@
+.field {
+  flex: 1;
+
+  .field-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+}
+
+// Additional specific styles for form elements
+.form-section {
+  .field {
+    margin-bottom: 24px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.left-panel-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .left-panel-title {
+    h1 {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}

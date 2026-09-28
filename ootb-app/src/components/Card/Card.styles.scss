@@ -1,0 +1,33 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-card {
+  border-radius: 8px;
+  background-color: white;
+  border: 1px solid white;
+
+  &:hover {
+    border-color: $disabledSecondaryBorder;
+  }
+  &:focus {
+    border-color: $primaryColor;
+  }
+
+  &.ia-card-extraSmall {
+    box-shadow: 0px 0px 4px 0px #0000001f;
+  }
+  &.ia-card-small {
+    box-shadow: 0px 8px 10px 0px #0000000f;
+  }
+  &.ia-card-medium {
+    box-shadow: 0px 16px 18px 0px #0000000f;
+  }
+  &.ia-card-large {
+    box-shadow: 0px 24px 26px 0px #0000000f;
+  }
+  &.ia-card-extraLarge {
+    box-shadow: 0px 32px 36px 0px #0000000f;
+  }
+  &.ia-card-extraLarge-3x {
+    box-shadow: 0px 64px 64px 0px #0000000f;
+  }
+}

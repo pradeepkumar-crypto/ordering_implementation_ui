@@ -1,0 +1,87 @@
+.MuiChip-root.impact_badges_only_label_stroke {
+  height: 24px;
+  border: 1px solid $grayBadge;
+  background: $whiteColor;
+  padding: 0 8px;
+  max-width: max-content;
+  cursor: default;
+  .MuiChip-label {
+    padding: 0px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    font-family: $fontFamily;
+    color: $grayBadge;
+  }
+  &.small-badge {
+    height: 20px;
+  }
+
+  &:hover {
+    background: $whiteColor;
+  }
+}
+
+.MuiChip-root.info-badge-stroke {
+  border: 1px solid $primaryBadge;
+  background: $whiteColor;
+  .MuiChip-label {
+    color: $primaryColor;
+  }
+
+  svg {
+    color: $primaryColor;
+  }
+
+  &:hover {
+    background-color: $whiteColor;
+  }
+}
+
+.MuiChip-root.success-badge-stroke {
+  border: 1px solid $greenBadge;
+  background: $whiteColor;
+  .MuiChip-label {
+    color: $greenBadge;
+  }
+
+  svg {
+    color: $greenBadge;
+  }
+
+  &:hover {
+    background: $whiteColor;
+  }
+}
+
+.MuiChip-root.warning-badge-stroke {
+  border: 1px solid $yellowBadgeOutlined;
+  background: $whiteColor;
+  .MuiChip-label {
+    color: $yellowBadgeOutlined;
+  }
+
+  svg {
+    color: $yellowBadgeOutlined;
+  }
+
+  &:hover {
+    background: $whiteColor;
+  }
+}
+
+.MuiChip-root.error-badge-stroke {
+  border: 1px solid $subtleErrorFontColor;
+  background: $whiteColor;
+  .MuiChip-label {
+    color: $subtleErrorFontColor;
+  }
+
+  svg {
+    color: $subtleErrorFontColor;
+  }
+
+  &:hover {
+    background: $whiteColor;
+  }
+}

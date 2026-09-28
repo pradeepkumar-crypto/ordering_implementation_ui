@@ -1,0 +1,107 @@
+@import "../../styles/index.scss";
+
+.ia-radioGroup .MuiFormControlLabel-root .MuiButtonBase-root {
+  padding: 3px 8px;
+}
+
+.MuiFormGroup-root.orientation-row {
+  gap: 8px;
+  flex-direction: row;
+}
+
+.MuiFormGroup-root.orientation-column {
+  gap: 8px;
+  flex-direction: column;
+}
+
+.ia-radioButton {
+  // margin: 0 0 0 -8px;
+  .MuiSvgIcon-root {
+    width: 16px;
+    height: 16px;
+    border: 1px solid $deactivateColor;
+    border-radius: 50%;
+  }
+  path {
+    display: none;
+  }
+}
+
+.ia-radioButton:hover .MuiSvgIcon-root {
+  border: 1px solid $primaryColor;
+}
+.ia-radioButton-disabled .MuiSvgIcon-root {
+  border: 1px solid $disabledSecondaryBorder !important;
+  background: $textButtonPrimaryBg;
+}
+
+.ia-radioButton.ia-radioButton-disabled .MuiSvgIcon-root:nth-child(2) {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+  background: $deactivateColor !important;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 0;
+  border: none;
+  bottom: 0;
+}
+
+.ia-radioButton .MuiSvgIcon-root:nth-child(2) {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+  background: $primaryColor;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 0;
+  border: none;
+  bottom: 0;
+}
+
+.ia-radioButton .Mui-checked .MuiSvgIcon-root {
+  width: 16px;
+  height: 16px;
+  border: 1px solid $primaryColor;
+  border-radius: 50%;
+  background: transparent;
+  path {
+    display: none;
+  }
+}
+
+.ia-radioButton .Mui-checked .MuiSvgIcon-root:nth-child(2) {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  margin: 0;
+  background: $primaryColor;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 0;
+  border: none;
+  bottom: 0;
+}
+.ia-radioButton {
+  .MuiTypography-root {
+    font-size: 14px;
+    color: $grayBadge;
+    font-family: $fontFamily;
+    font-weight: 500;
+  }
+
+  .MuiRadio-root.Mui-checked + .MuiTypography-root {
+    color: $mainFontColor;
+  }
+}

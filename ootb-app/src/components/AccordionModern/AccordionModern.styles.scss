@@ -1,0 +1,102 @@
+@import "../../styles/index.scss";
+
+.impact-accordion-modern-main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.impact-modern-accordion-item {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background-color: $whiteColor;
+  border: 1px solid #eff2fa;
+
+  .impact-modern-accordion-header {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    height: 48px;
+    padding: 8px 16px;
+    width: 100%;
+
+    .impact-modern-accordion-drag-icon {
+      & svg {
+        width: 20px;
+        height: 20px;
+        color: #60697d;
+      }
+    }
+
+    .impact-modern-accordion-expand-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 32px;
+      width: 32px;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: $textButtonPrimaryBg;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      & svg {
+        width: 20px;
+        height: 20px;
+        color: #1f2b4d;
+      }
+    }
+
+    .expand-content-icon {
+      transform: rotate(90deg);
+    }
+
+    .impact-modern-accordion-title {
+      font-family: $fontFamily;
+      font-size: $normalFontSize;
+      font-weight: $semiBoldFontWeight;
+      line-height: 21px;
+      color: $offDarkColor;
+      width: 100%;
+    }
+    .impact-modern-accordion-title.child-count {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .impact-modern-accordion-content {
+    font-family: $fontFamily !important;
+    font-size: $normalFontSize;
+    font-weight: $normalFontWeight;
+    line-height: 21px;
+    color: $offDarkColor;
+    padding: 0 16px; /* Initially no vertical padding */
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
+    box-sizing: border-box; /* Ensures padding is included in height calculation */
+  }
+
+  .expand-content {
+    padding: 16px; /* Add vertical padding on expansion */
+    height: auto; /* Allows natural height */
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.expand-content-icon + .impact-modern-accordion-title {
+  font-weight: 800 !important;
+  h3 {
+    font-weight: 800;
+  }
+}

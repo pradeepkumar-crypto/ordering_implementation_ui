@@ -1,0 +1,57 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-breadcrumb {
+  font-family: $fontFamily;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16.1px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: $primaryColor; //#60697d
+  cursor: pointer;
+  &.ia-breadcrumb-disabled {
+    color: #60697d;
+  }
+
+  &.ia-breadcrumb-home {
+    svg {
+      display: flex;
+      path {
+        height: 11.67px;
+        width: 10.67px;
+      }
+    }
+  }
+
+  &.ia-breadcrumb-extras {
+    margin-left: 5px;
+    margin-right: -1px;
+  }
+
+  &:hover:not(.ia-breadcrumb-noLink):not(.ia-breadcrumb-disabled) {
+    color: $primaryColor;
+    path {
+      fill: $primaryColor;
+    }
+  }
+
+  &.ia-breadcrumb-noLink {
+    font-weight: 800;
+    color: #1f2b4d;
+    cursor: default;
+  }
+}
+
+.MuiBreadcrumbs-root {
+  .MuiBreadcrumbs-separator {
+    margin-left: 4px;
+    margin-right: 3px;
+  }
+  .MuiBreadcrumbs-li:has(> * > .ia-breadcrumb-extras) {
+    height: 24px;
+    div {
+      display: flex;
+      align-items: center;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+key,label,css_var,team,chip_order,hex
+derived,Derived,--type-derived,ordering,1,#2563EB
+one_time,One-Time,--type-one-time,ordering,2,#B45309
+backsync,Backsync,--type-backsync,ordering,3,#7C3AED
+dynamic,Integration,--type-dynamic,ordering,4,#4F46E5
+pg,PG Schema,--type-pg,ordering,5,#059669
+sync_sp,Sync SP,--type-sync-sp,ordering,6,#0D9488
+resolution_sp,Resolution SP,--type-resolution-sp,ordering,7,#EA580C

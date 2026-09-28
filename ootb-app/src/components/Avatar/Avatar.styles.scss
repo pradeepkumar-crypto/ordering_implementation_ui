@@ -1,0 +1,24 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-avatar {
+  background-color: $disabledSecondaryBorder;
+  color: $grayBadge;
+  font-family: $fontFamily;
+  font-weight: $ExtraFontWeight;
+
+  &.ia-avatar-small {
+    height: 36px;
+    width: 36px;
+    font-size: $smallFontSize;
+  }
+  &.ia-avatar-medium {
+    height: $Component48px;
+    width: $Component48px;
+    font-size: $mediumFontSize;
+  }
+  &.ia-avatar-large {
+    height: 64px;
+    width: 64px;
+    font-size: 20px;
+  }
+}

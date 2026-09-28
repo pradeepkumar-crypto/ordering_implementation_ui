@@ -1,0 +1,339 @@
+@import "../../styles/index.scss";
+
+.impact-info-panel-container {
+  font-family: $fontFamily;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  width: 100%;
+  padding: 8px 24px;
+  background-color: $whiteColor;
+
+  .impact-info-panel-left-container {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    .impact-filter-dropdown-container {
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+
+      .MuiChip-root.impact_badges_only_label_stroke {
+        max-width: 145px;
+      }
+      //   border: 1px solid blue;
+
+      .impact-filter-dropdown-label {
+        font-family: $fontFamily;
+        font-size: $normalFontSize;
+        font-weight: $normalFontWeight;
+        line-height: 21px;
+        color: $textButtonFontColor;
+      }
+
+      .impact-filter-dropdown-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 32px;
+        width: 32px;
+        padding: 8px;
+        border-radius: 8px;
+        background-color: $textButtonPrimaryBg;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          cursor: pointer;
+        }
+
+        & svg {
+          width: 20px;
+          height: 20px;
+          color: $mainFontColor;
+        }
+      }
+      .impact-filter-dropdown-wrapper {
+        position: absolute;
+        top: 45px;
+        right: 0px;
+        left: -25px;
+        // height: 300px;
+        min-width: 265px;
+        width: 100%;
+        border-radius: 8px;
+        padding: 8px 6px;
+        background-color: $whiteColor;
+        z-index: 1200;
+        box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.0588235294);
+
+        .impact-filter-dropdown-recent-container {
+          display: flex;
+          flex-direction: column;
+          .impact-filter-dropdown-label {
+            font-family: $fontFamily;
+            font-size: $smallFontSize;
+            font-weight: $normalFontWeight;
+            line-height: 21px;
+            color: $textButtonFontColor;
+            padding: 6px 18px;
+          }
+
+          .impact-filter-dropdown-recent-filters-wrapper {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 6px;
+            .impact-filter-dropdown-recent-filters {
+              display: flex;
+              flex-direction: row;
+              padding: 8px 18px;
+              border-radius: 8px;
+
+              &:hover {
+                cursor: pointer;
+                background-color: #edf0ff;
+              }
+
+              span {
+                font-family: $fontFamily;
+                font-size: $normalFontSize;
+                font-weight: $normalFontWeight;
+                line-height: 20px;
+                color: $mainFontColor;
+              }
+            }
+          }
+        }
+
+        .impact-filter-dropdown-saved-container {
+          display: flex;
+          flex-direction: column;
+          .impact-filter-dropdown-label {
+            font-family: $fontFamily;
+            font-size: $smallFontSize;
+            font-weight: $normalFontWeight;
+            line-height: 21px;
+            color: $textButtonFontColor;
+            padding: 6px 18px;
+          }
+
+          .impact-filter-dropdown-saved-filters-badge-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 6px;
+            padding: 8px 18px;
+            .MuiChip-root.impact_badges_only_label_stroke {
+              cursor: pointer;
+            }
+          }
+
+          .impact-filter-dropdown-saved-filters-no-data-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: $fontFamily;
+            font-size: $normalFontSize;
+            font-weight: 400;
+            line-height: 20px;
+            color: $inputInfoColor;
+            margin: 24px 0;
+          }
+
+          .impact-filter-dropdown-saved-filters-search-wrapper {
+            padding: 8px 18px;
+
+            .impact-input-wrapper {
+              min-width: 100% !important;
+              border: none !important;
+              padding-left: 0;
+            }
+          }
+
+          .impact-filter-dropdown-saved-filters-lists-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-height: 160px;
+            overflow: auto;
+
+            .impact-filter-dropdown-saved-filters-list {
+              font-family: $fontFamily;
+              font-size: $normalFontSize;
+              font-weight: $normalFontWeight;
+              line-height: 20px;
+              color: $mainFontColor;
+              padding: 8px 18px;
+              border-radius: 8px;
+              margin-bottom: 4px;
+
+              &:hover {
+                cursor: pointer;
+                background-color: $textButtonPrimaryBg;
+              }
+            }
+          }
+
+          .filter-dropdown-selected-list {
+            background-color: #edf0ff;
+          }
+        }
+
+        .impact-filter-dropdown-action-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .impact-filter-dropdown-action-btns {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0px 18px;
+          }
+        }
+      }
+    }
+
+    .impact-selected-filter-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+
+      .impact-selected-filter-tags {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        width: 700px;
+        max-width: 100%;
+        overflow: hidden;
+        // border: 1px solid salmon;
+
+        .impact-selected-filter-wrapper {
+          position: relative;
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: row;
+          gap: 6px;
+          align-items: center;
+          transition: transform 0.5s ease-in-out;
+          .impact-selected-filter-label {
+            font-family: $fontFamily;
+            font-size: $smallFontSize;
+            font-weight: $normalFontWeight;
+            line-height: 21px;
+            color: $textButtonFontColor;
+          }
+
+          .impact-selected-filter-tags-container {
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            align-items: center;
+          }
+        }
+      }
+
+      .impact-selected-filter-action-btns {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+
+        .impact-selected-filter-action-btn {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 8px 4px;
+          cursor: pointer;
+          background-color: #f5f6fa;
+
+          svg {
+            font-size: 18px;
+            color: #60697d;
+          }
+        }
+
+        .prev {
+          border-top-left-radius: 4px;
+          border-bottom-left-radius: 4px;
+        }
+
+        .next {
+          border-top-right-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+      }
+    }
+  }
+
+  .impact-info-panel-right-container {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .impact-filter-strip-separator {
+    display: inline-block;
+    height: 16px;
+    width: 1px;
+    background-color: $disabledSecondaryBorder;
+  }
+}
+
+// for portal
+.impact-selected-filter-tags-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0px 8px 10px 0px rgba(0, 0, 0, 0.0588235294);
+  max-width: 200px;
+  width: 100%;
+  z-index: 1200;
+
+  .impact-selected-filter-tag-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .impact-selected-filter-tag-label {
+    font-family: $fontFamily;
+    font-size: $normalFontSize;
+    font-weight: $normalFontWeight;
+    line-height: 20px;
+    color: $mainFontColor;
+    padding: 8px 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .impact-selected-filter-tags-actions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    .ia-styles.ia-btn {
+      width: 100%;
+    }
+  }
+}

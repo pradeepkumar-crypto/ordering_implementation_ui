@@ -1,0 +1,932 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Change Log" />
+
+<div className="ia-styles ia-guide-container">
+All notable changes to this project will be documented in this file.
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.6]</h2>
+    <span>
+      <strong>Release Date</strong>: 06/05/2025
+    </span>
+  </div>
+  <h4>Changed</h4>
+  <ul>
+      <li>updated filterButtonLabel button variant in <code>FiltersStrip</code> component based on design</li>
+      <li>updated advance search modal to show text field as default when options are not provided in <code>Table</code> component</li>
+      <li>Improved <code>Loader</code> component to display loader text when either <code>progress</code> or <code>text</code> is present</li>
+      <li>Updated <code>Panel</code> component to support a custom <code>width</code> prop for drawer width</li>
+  </ul>
+  <h4>Fixed</h4>
+  <ul>
+    <li>Fixed the onBlur functionality issue in <code>Select</code> component</li>
+    <li>Fixed the onChange value standardisation and range validation for slider and input in <code>Slider</code> component</li>
+    <li>Fixed css to match design for <code>Prompt</code> component</li>
+    <li>Table column visibility now respects the <code>is_hidden</code> property in both <code>Table</code> and <code>OldTable</code> components</li>
+    <li>Fixed Tooltip and label rendering for long select options and multi-select options</li>
+    <li>Improved automatic expansion handling in the <code>Accordion</code> component for smoother user experience.</li>
+    <li>Resolved an issue where columns did not appear on the initial opening of table settings in the <code>Table</code> component.</li>
+    <li>Fixed the BottomSheet import issue.</li>
+    <li>Fixed the expand/collapse issue in <code>Accordion</code>Component.</li>
+    <li>Fixed the tooltip issue in <code>Select</code>Component.</li>
+    <li>Fixed the advance search issue in <code>Table</code> Component.</li>
+    <li>Fixed the header input resizing issue on small column width in <code>Table</code> Component.</li>
+    <li>Fixed Select minWidth to resize based on the container when used in <code>Table</code> Component.</li>
+    <li>Fixed design issues in <code>Alert</code>, <code>Badge</code> and <code>CreateItemFlow</code> component</li>
+    <li>Fixed the position issue of calendar in table using cell-render</li>
+    <li>Fixed the sidebar plain text issue in <code>Sidebar</code> Component.</li>
+    <li>Fixed the select all design in <code>Select</code> Component.</li>
+  </ul>
+  <h4>Added</h4>
+  <ul>
+    <li>Added <code>text</code> prop in <code>Loader</code> which was hardcoded before</li>
+    <li>Added <code>hideTableFormat</code>, <code>hideTableActions</code>, and <code>handleClearSearchInline</code> props to both <code>Table</code> and <code>OldTable</code> components for more flexible table configuration</li>
+    <li>Added new tooltip styling classes and improved tooltip handling in the <code>Select</code> component for long labels and multi-select options</li>
+    <li>Added <code>className</code> prop to the <code>Tooltip</code> component for custom styling</li>
+    <li>Added <code>width</code> prop to the <code>Select</code> component.</li>
+    <li>Added <code>aboveTableComponent</code>, <code>hideTableSetting</code>, <code>explicitlyCloseTableSetting</code> , <code>customHeaderComponent</code> and <code>handleCloseInputField</code> in the <code>Table</code> Component.</li>
+    <li>Added <code>selectId</code> prop to the <code>Select</code> component.</li>
+    <li>Added support for search icon prevailing in column header for <code>Table</code> component when there is searched text</li>
+    <li>Added active route support in <code>SidePanel</code> component and updated design accordingly</li>
+    <li>Added support for SubMenu in <code>Select</code> component</li>
+    <li>Added <code>isMultiInSubmenu</code> prop for single select parent and multi select submenu in <code>Select</code> component</li>
+    <li>Added <code>isAgGridCellRenderer</code> prop in <code>datePicker</code> and <code>dateRangePicker</code> Component.</li>
+    <li>Added vertical scrollbar in <code>Table</code> Component.</li>
+    <li>Added support of changing date through input field in <code>DatePicker</code> component</li>
+    <li>Added support of changing date through input field in <code>DateRangePicker</code> component and <code>minDate, maxDate</code> props added for validation purpose</li>
+    <li>Added <code>readOnly</code> prop in both <code>DatePicker</code> and <code>DateRangePicker</code> component</li>
+  </ul>
+</section>
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.5]</h2>
+    <span>
+      <strong>Release Date</strong>: 30/04/2025
+    </span>
+  </div>
+  <h4>Changed</h4>
+    <ul>
+      <li>updated variant in <code>Stepper</code> component to incorporate new stepper design in create flow</li>
+      <li>updated new table design in Old <code>Table</code> component</li>
+    </ul>
+  <h4>Fixed</h4>
+  <ul>
+    <li>Fixed the issue where the dropdown in <code>FilterStrip</code> component was not closing when clicked (outside, cancel button, apply button)</li>
+    <li>Fixed the issue where the dropdown in <code>Menu</code> component was not closing when clicked outside</li>
+    <li>Fixed extra div coming in <code>Header</code> while opening <code>Menu</code> component</li>
+    <li>Fixed the issue where dropdown is not opening at right postion with <code>withPortal</code> props in <code>Select</code> component</li>
+    <li>Fixed the issue where select all was not working in <code>Select</code> component with <code>withPortal</code> prop</li>
+    <li>Fixed the issue where selected month was not highlighted in <code>DatePicker</code> component if the selected date was initialised with previous month date</li>
+    <li>Fixed the disabled state of button in <code>Button</code> component</li>
+    <li>Fixed the datePicker hiding issue in <code>Modal</code> component</li>
+    <li>Fixed the custom input issue in Ranged <code>Slider</code> component</li>
+    <li>Fixed the issue where clicking on Select All didn't trigger the handleChange in <code>Select</code> component</li>
+    <li>Fixed the css issue in large size in <code> Modal</code> component</li>
+    <li>Fixed the sort icon which will be visible based on <code>sortable:true</code> in <code>columnDef</code> in <code>Table</code> component</li>
+    <li>Fixed the issue where handleChange was not triggerring in <code>Select</code> component on clicking on select all</li>
+  </ul>
+  <h4>Added</h4>
+  <ul>
+    <li>
+      Added <code>savedFilterSelectedBadge</code> prop in{" "}
+      <code>FilterStrip</code> component to show the selected saved filter badge
+    </li>
+    <li>Added a prop <code>emptyStateBottomOptions</code> in <code>EmptyState</code> component to add custom jsx at the bottom of the empty state</li>
+    <li>Added a prop <code>footerOptions</code> in <code>Modal</code> component to add custom jsx at the bottom of the modal</li>
+    <li>Added new <code>BottomSheet</code> component</li>
+    <li>Added <code>showContentualFilter</code>, <code>onContentualFilterClick</code>, <code>contentualFilterProps</code>, <code>contentualFilterComponent</code> props for contentual filter support and support for filter custom component provided in <code>Table</code> component</li>
+    <li>Added <code>hidePaginationPageSizeSelector</code> prop in <code>Table</code> component to hide the pagination page size selector</li>
+    <li>Added <code>onTableActionsTabClick</code> prop in <code>Table</code> component to handle the event when table actions tab is click</li>
+    <li>Added <code>minDate</code> and <code>maxDate</code> prop in <code>DatePicker</code> component to set the min and max date</li>
+    <li>Added <code>remountOnTabChange</code> prop in <code>Tabs</code> component when <code>false</code> then the tab panel will not be remounted when the tab is changed</li>
+    <li>Added the second argument as event in onClick handler of <code>Menu</code> component</li>
+  </ul>
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.5.4]</h2><span><strong>Release Date</strong>: 04/04/2025</span></div>
+     <h4>Changed</h4>
+     <ul>
+        <li>New design is incorporated in the <code>Table</code> Component.</li>
+        <li>Dynamic submenu support for <code>Menu</code> Component available by passing <code>children</code> prop inside menu item options</li>
+        <li>Section and sublabel support in <code>Menu</code> Component available by passing <code>section</code> prop and <code>subLabel</code> prop inside menu item options</li>
+        <li>rightIcon prop added in <code>Menu</code> component</li>
+     </ul>
+     <h4>Added</h4>
+    <ul>
+        <li>Added generic button support to footer in <code>Modal</code> component using <code>footerButtons</code> prop</li>
+        <li>Extended support till react version 20 as peer dependency</li>
+        <li>Added <code>disabled</code> prop in <code>Accordion</code> component</li>
+        <li>Added <code>emptyStateIcon</code> prop in <code>EmptyState</code> component</li>
+        <li>Added <code>iconClickOnDisabled</code> prop in <code>Input</code> component</li>
+        <li>Added Advance Search Functionality in <code>Table</code> component available by passing <code>advanceSearchEnabled</code> key inside column definitions</li>
+        <li>Added <code>alwaysRender</code> prop in <code>FilterPanel</code> component</li>
+        <li>isLoader props introduces in <code>Dropdown</code> component</li>
+        <li>Remove open and onClose props in <code>Tooltip</code> component</li>
+        <li>Ranged Slider support in functionality and design changes in <code>Slider</code> component by passing value as array of both values and <code>variant</code> prop, <code>inputPosition</code> prop added</li>        <li>Added <code>CreateItemFlow</code> component</li>
+    </ul>
+    <h4>Fixed</h4>
+    <ul>
+        <li>Fixed the reset button issue in <code>DateRangePicker</code> Component.</li>
+        <li>Fixed the UI issue in <code>Table</code> Component.</li>
+        <li>Fixed the table search issue in the <code>Table</code> component. </li>
+        <li>Fixed SVG icon support in the <code>Button</code> component.</li>
+        <li>Fixed <code>Select</code> component integration with table and auto-scrolling of selected values.</li>
+        <li>Fixed the focus issue in input field in the <code>Table</code> Component.</li>
+        <li>Portal dropdown in <code>FilterStrip</code> component to have fixed width</li>
+        <li>Handled not closing the dropdown when clicked on dropdown in <code>FilterStrip</code> component</li>
+        <li>Handled repetitive logic on dropdown in <code>FilterStrip</code> component</li>
+        <li>Fixed alignment of the portal dropdown in the <code> Menu </code> Component. </li>
+        <li>Fixed the icon color issue in the <code>Button</code> component when disabled</li>
+        <li>Fixed the text overflow issue in <code>Select</code> component</li>
+        <li>Fixed the text overflow issue in <code>Sidebar</code> component</li>
+        <li>Fixed the withPortal issue in <code>DatePicker</code> component</li>
+        <li>Fixed hover issue in the <code>Tooltip</code> component</li>
+        <li>Fixed the filter panel footer issue <code> FilterPanel</code> Component.</li>
+        <li>Fixed the topRightOptions issue in <code>Table</code> component</li>
+        <li>Increased the z index of <code>Alert</code> component</li>
+        <li>Fixed home icon rendering in <code>Breadcrumb</code> component - icon now only displays when label is "Home" instead of showing for all first items</li>
+        <li>Fixed the text alignment issue in <code>FileUpload</code> component</li>
+        <li>Fixed All columns not redner in table settings. <code>Table</code> component</li>
+
+    </ul>
+
+</section>
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.3]</h2>
+    <span>
+      <strong>Release Date</strong>: 07/03/2025
+    </span>
+  </div>
+  <h4>Fixed</h4>
+  <ul>
+    <li>
+      Fixed unable to scroll issue in <code>Select</code> Component for large
+      list when pausing
+    </li>
+    <li>
+      Fixed the css issues in <code>Table</code> Component in Tab panel
+    </li>
+  </ul>
+</section>
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.2]</h2>
+    <span>
+      <strong>Release Date</strong>: 06/03/2025
+    </span>
+  </div>
+  <h4>Fixed</h4>
+  <ul>
+    <li>
+      Table css of old overriding in new <code>Table</code> fixed for properties
+      not defined
+    </li>
+  </ul>
+</section>
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.1]</h2>
+    <span>
+      <strong>Release Date</strong>: 06/03/2025
+    </span>
+  </div>
+  <h4>Fixed</h4>
+  <ul>
+    <li>
+      Fixed search and sort functionality and callback issue in{" "}
+      <code>Table</code> Component
+    </li>
+  </ul>
+</section>
+
+<section>
+  <div className="changelog-heading">
+    <h2>[3.5.0]</h2>
+    <span>
+      <strong>Release Date</strong>: 04/03/2025
+    </span>
+  </div>
+  <h4>Changed</h4>
+  <ul>
+    <li>
+      Updated "Move to Pending" text in Notification List to be configurable by
+      passing <code>moveToPendingText</code> prop in list item
+    </li>
+    <li>
+      New design is incorporated in the<code>Table</code> Component.
+    </li>
+  </ul>
+  <h4>Added</h4>
+  <ul>
+    <li>
+      {" "}
+      Added a new <code>Filter Slider</code> which can be reused for notification
+      by passing appropriate children
+    </li>
+    <li>
+      Added a dropdown feature for "Move to pending" action in NotificationList,
+      allowing users to select options from a dropdown instead of a button. Pass{" "}
+      <code>moveToPendingDropdownOptions</code> list as prop to the component to
+      select options from dropdown
+    </li>
+    <li>
+      Added a "maxWidth" prop in <code>Select</code> component for more control
+      over its appearance
+    </li>
+    <li>
+      Added props <code>showDownloadButton</code>{" "}
+      <code>onDownloadButtonClick</code> <code>nestedTable</code>{" "}
+      <code>nestedTableComponent</code> <code>closeButton</code>{" "}
+      <code>handleCloseButtonClick</code> <code>additionalButtons</code> and{" "}
+      <code>applySort</code> in the <code>Table</code> Component.
+    </li>
+    <li>
+      Added <code>handleTabChange</code> props in the <code>Notifocation</code>{" "}
+      Component.
+    </li>
+    <li>
+      Added <code>showOverdueIcon</code> and{" "}
+      <code>showFastApproachingIcon</code> in the <code>notificationList</code>{" "}
+      to show or hide the particular icon in the <code>Notifocation</code>{" "}
+      Component.
+    </li>
+    <li>
+      Added <code>showBookMark</code> in the <code>notificationList</code> to
+      show the BookMark icon without passing it's handler function in the{" "}
+      <code>Notifocation</code> Component.
+    </li>
+    <li>
+      Added props <code>activeNotiTab</code> in the <code>Notifocation</code>{" "}
+      Component.
+    </li>
+  </ul>
+  <h4>Fixed</h4>
+  <ul>
+    <li>
+      Fixed the dropdown overflow issue and slider issue in{" "}
+      <code>Filter Strip</code> Component.
+    </li>
+    <li>
+      Fixed the badges list updation bug in <code>Notification</code> Component.
+    </li>
+  </ul>
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.4.4]</h2><span><strong>Release Date</strong>: 28/02/2025</span></div>
+     <h4>Changed</h4>
+    <ul>
+        <li>Removed the props <code>label</code> and <code>labelPosition</code> in the <code>Swicth</code> Component</li>
+    </ul>
+    <h4>Added</h4>
+    <ul>
+        <li> Added the props <code>leftLabel</code> and <code> rightLabel </code> in the <code>Swicth</code> Component</li>
+         <li> Added a new functionality of retaining it's previous state of <code>start date</code> and <code>end date</code> without clicking on <code>Apply</code> button in the <code>DateRangePicker</code>Component</li>
+
+    </ul>
+    <h4>Fixed</h4>
+    <ul>
+        <li>Fixed the double scrollbar issue in the <code>Select</code> Component.</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.3.4]</h2><span><strong>Release Date</strong>: 12/02/2025</span></div>
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed the <code>--before-height</code> variable setting to recalculate after menu item change in the <code>Sidebar </code>Component</li>
+        <li>Fixed the Long Paragraph text wrapping issue in the <code>EmptyState </code>Component</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.3.3]</h2><span><strong>Release Date</strong>: 11/02/2025</span></div>
+        <h4>Added</h4>
+
+    <ul>
+        <li>Added <code>customWeekNumberData</code> props in the DateRangePicker Component</li>
+    </ul>
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed the height issue in the <code>Select </code>Component</li>
+        <li>Fixed the <code>Loader </code>Component</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.3.2]</h2><span><strong>Release Date</strong>: 11/02/2025</span></div>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed the selected option not visible bug in single <code>Select </code>Component</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.3.1]</h2><span><strong>Release Date</strong>: 10/02/2025</span></div>
+     <h4>Changed</h4>
+
+    <ul>
+        <li>Complete UX redesign across all components: Every element of our design system has undergone a significant transformation to improve usability, aesthetics, and accessibility. </li>
+        <li>Changed the icon color and other ux elements in the <code>Alert</code> Component.</li>
+        <li>New design is incorporated in the<code>AccordionModern</code> Component.</li>
+        <li>New design is incorporated in the <code>Button</code> Component.</li>
+        <li>New design is incorporated in the <code>Select</code> Component. </li>
+        <li>New design is incorporated in the <code>FilterStrip</code> Component. </li>
+        <li>New design is incorporated in the <code>Input</code> Component. </li>
+        <li>New design is incorporated in the <code>Menu</code> Component. </li>
+        <li>New design is incorporated in the <code>Prompt</code> Component. </li>
+        <li>New design is incorporated in the <code>Radio Button</code> Component. </li>
+        <li>New design is incorporated in the <code>Swicth</code> Component. </li>
+        <li>New design is incorporated in the <code>Tabs</code> Component. </li>
+        <li>New design is incorporated in the <code>TextArea</code> Component. </li>
+    </ul>
+     <h4>Added</h4>
+
+    <ul>
+        <li>Added <code>subtleBackground</code> props in the Alert Component</li>
+        <li>Added destructive <code>type</code> props in the <code>Button</code> Component.</li>
+        <li>Added <code>withDropDown</code> and <code>dropDownData</code> props in the <code>Checkbox</code> Component.</li>
+        <li>Added <code>showSkeleton</code> props in the <code>Loader</code> Component. </li>
+        <li>Added <code>handleStep</code> and <code>orientation</code> props in the <code>Stepper</code> Component.</li>
+        <li>Added <code>orientation</code> props in the <code>Tabs</code> Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed the navigation bug in the <code>Breadcrumb </code>Component</li>
+        <li>Fixed the search functionality in the <code>Table </code>Component</li>
+        <li>Fixed the issue where the cross icon was not removable for single select components even when the isClearable prop was passed in the <code>Select</code> Component.</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.3.0]</h2><span><strong>Release Date</strong>: 22/01/2025</span></div>
+     
+     <h4>Added</h4>
+
+    <ul>
+        <li>Added <code>childCount</code> key in data prop in the AccordionModern Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed the navigation through breadcrumb leads to reload whole page.</li>
+        <li>Fixed the search functionality in the OldTable component.</li>
+        <li>Fixed the overlapping issue in pagination in the table component.</li>
+    </ul>
+
+</section>
+
+<section>
+     <div className="changelog-heading"><h2>[3.2.9]</h2><span><strong>Release Date</strong>: 07/01/2025</span></div>
+     <h4>Changed</h4>
+
+    <ul>
+        <li>Changed Row height to <code>comfort : 52</code>, <code>compact : 30</code> and <code>Default : 46</code> in the Table Component.</li>
+    </ul>
+     <h4>Added</h4>
+
+    <ul>
+        <li>Added <code>hideSelectedFilterBadge</code> prop in the Filter Strip Component.</li>
+         <li>Added <code>hideRowHeightOptionMenu</code> prop in the Table Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed Child Module Auto-Navigation in Sidebar Component</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.8]</h2><span><strong>Release Date</strong>: 02/01/2025</span></div>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed storybook components bugs</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.7]</h2><span><strong>Release Date</strong>: 02/01/2025</span></div>
+
+     <h4>Changed</h4>
+
+    <ul>
+        <li>Changed maximum number of displayed filter from <code>one</code> to <code>two</code> in the Filter Strip Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.6]</h2><span><strong>Release Date</strong>: 18/12/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Changed breadcrumb to the latest UI update.</li>
+        <li>Removed default padding from the TabPanel in the Tab Component.</li>
+        <li>Renamed the props name from <code>variant</code> to <code>severity</code> in Alert Component.</li>
+        <li>Renamed the props name from <code>image</code> to <code>src</code> in Avatar Component.</li>
+        <li>Renamed the props name from <code>isDisabled</code> and <code>isRequired</code> to <code>disabled</code> and <code>required</code> respectively in Checkbox Component.</li>
+        <li>Renamed the props name from <code>isDisabled</code> and <code>isRequired</code> to <code>disabled</code> and <code>required</code> respectively in Slider Component.</li>
+        <li>Renamed the props name from <code>isDisabled</code> to <code>disabled</code> in Switch Component.</li>
+        <li>Renamed the props name from <code>label</code> to <code>title</code> in Tooltip Component.</li>
+        <li>Renamed the props name from <code>isOpen</code> to <code>open</code> in Menu Component.</li>
+        <li>Renamed the props name from <code>isOpen</code> and <code>handleClose</code> to <code>open</code> and <code>onClose</code> respectively in Modal Component.</li>
+        <li>Renamed the props name from <code>isOpen</code> and <code>handleClose</code> to <code>open</code> and <code>onClose</code> respectively in Panel Component.</li>
+        <li>Renamed the props name from <code>activeTab</code> to <code>value</code> in Tabs Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>New <code>variant</code> prop <code>solid</code> added in the Tag Component.</li>
+        <li>New component <code>Filters Strip</code> added to Design System.</li>
+        <li>Prop <code>tabPanelStyle</code> added, through which you can pass own style to TabPanel in the Tab Component.</li>
+        <li>Added Prop <code>icon</code> to the Menu options in the Menu Component.</li>
+        <li>Added Props <code>onStartDateFocus</code> and <code>onEndDateFocus</code> to the DateRangePicker Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed body's height issue, in the Filter Panel Component.</li>
+        <li>Fixed Select disabled UI.</li>
+        <li>Fixed child-route's height issue in the Sidebar Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.5]</h2><span><strong>Release Date</strong>: 09/12/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Button <code>secondary</code> variant UI changed to latest update.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Added New Component <code>AccordionModern</code>.</li>
+        <li>Added optional <code>clear</code> button in the DatePicker Component.</li>
+        <li>Prop <code>handleFocusChange</code> added to handle date focus change event in the DateRangePicker Component.</li>
+        <li>Props <code>primaryButtonProp</code>, <code>secondaryButtonProps</code>, <code>tertiaryButtonProps</code> and <code>quaternaryButtonProps</code> added in the the FilterPanel Component.</li>
+        <li>Search Column option added in the Table Column.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>You can now scroll all the Menu items in the Sidebar Component when document screen's height is less.</li>
+        <li>Fixed individual Tab's Name disable issue in the Tab Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.4]</h2><span><strong>Release Date</strong>: 28/11/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Props <code>onCancelClick</code> & <code>onNextClick</code> removed from the FileUpload Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>New Component <code>OldTable</code> is added which supports v27 of the AgGrid. <strong style={{fontWeight:600}}>Note:-</strong> It is still in the testing phase.</li>
+        <li>Props <code>primaryButtonLabel</code>,<code>onPrimaryButtonClick</code>, <code>primaryButtonProps</code>, <code>secondaryButtonLabel</code>, <code>onSecondaryButtonClick</code>, and <code>secondaryButtonProps</code> added in the the FileUpload Component.</li>
+        <li>Prop <code>displayFormat</code> added to the DatePicker and DateRangePicker Component.</li>
+        <li>Props <code>height</code> and <code>width</code> added to the Modal Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Removed unwanted <code>background-color</code> in the Select's dropdown, when user search option in the Select Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.3]</h2><span><strong>Release Date</strong>: 20/11/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Change Props to display notification list and badges in the Notification Component.</li>
+        <li>Made each UI elements in the Notification optional, if not passed will not display it.</li>
+        <li>Made Sidebar Component width <code>64px</code>.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Props <code>status</code> and <code>read</code> added to the Notification Component.</li>
+        <li>Added <code>border-left</code> and <code>border-right</code> to the Table Component.</li>
+        <li>Prop <code>cardContainer</code> added, if passed <code>true</code>, display Table Component in card container.</li>
+        <li>Props <code>primaryButtonProps</code> and <code>secondaryButtonProps</code> added to the Modal Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed <code>Read more</code> button issue in the Notification's List's description in the Notification Component.</li>
+        <li><code>Backdrop</code> shadow appears when you open the Prompt Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.2]</h2><span><strong>Release Date</strong>: 13/11/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>AgGrid version has been updated to latest version. We are not providing any backward compatibility to prev versions.</li>
+        <li>Prop <code>extraOptions</code> changed to <code>topRightOptions</code> in the Table Component.</li>
+        <li>Filter Panel component's UI added.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Prop <code>className</code> added to the Modal Component.</li>
+        <li>Props <code>quaternaryButtonLabel</code> & <code>onQuaternaryButtonClick</code> can be passed to display fourth button in the FilterPanel Component.</li>
+        <li>Props <code>topLeftOptions</code>,<code>bottomLeftOptions</code> and <code>bottomRightOptions</code> added, to render React children at different positions in the Table Component.</li>
+        <li>Separator UI added in the filter list of the Filter Panel component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed <code>numberOfFilter</code> bug when passed value 0 in the FilterPanel Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.1]</h2><span><strong>Release Date</strong>: 04/11/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Made <code>LeftIcon</code> and <code>RightIcon</code> optional in the Input Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Added search option in the Notification Component.</li>
+        <li>Added <code>background-color:#fff;</code> to Button Group, DatePicker, EmptyState, FileUpload, Input and Tabs Component.</li>
+        <li>Added selected props in the Menu Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed <code>keyCode</code> TypeError in the Select Component.</li>
+        <li>Fixed small space between Sidebar and Header Components.</li>
+        <li>Fixed Route List Item's height when Sidebar's height is reduced in the Sidebar Components.</li>
+        <li>Fixed Child Route's list height's line in the Sidebar Components.</li>
+        <li>Fixed Pagination UI issue in Table Component.</li>
+        <li>Removed Double Scroll bar issue in Table Component.</li>
+        <li>Fixed Menu icon visibility in Table Component.</li>
+        <li>Fixed Column menu icon alignment in Table Component.</li>
+        <li>Fixed <code>onFontSizeChange</code> functionality in Table Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.2.0]</h2><span><strong>Release Date</strong>: 21/10/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>If prop <code>label</code> not passed, label will not display in DatePicker, DateRangePicker, Input & Slider Components.</li>
+        <li>If Tab children not provided, return <code>null</code> in the Tab Component.</li>
+        <li>Removed <code>onFontSizeChange</code> props in the Table Component</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Notification Component added.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed DateRangePicker, DatePicker & Select dropdown position when used as <code>cell-render</code> in the Table Component.</li>
+        <li>Fixed <code>onFontSizeChange</code> functionality in the Table Component</li>
+        <li>Fixed highlight of rowHeight options in the Table Component.</li>
+        <li>Fixed <code>onNumberFormatChange</code> functionality in the Table Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.9]</h2><span><strong>Release Date</strong>: 9/10/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Prop <code>handleClose</code> added to callback called when click outside container in the Sidebar Component.</li>
+        <li>Prop <code>onDropdownClose</code> added to callback called when click outside container in the Select Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Added filetype accepted to the FileUpload Component. Accepted file format: [pdf, image, xls, xlsx, csv, text, html, audio, video, zip]</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed Month and Year dropdown position in the DateRangePicker Component.</li>
+        <li>Fixed Parent's Icon orientation when sidebar's container is closed in the Sidebar Component.</li>
+        <li>Fixed disabled functionality in the RadioButtonGroup Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.8]</h2><span><strong>Release Date</strong>: 7/10/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Cursor becomes pointer when hover on the Logo in the Header Component.</li>
+        <li>If you don't pass prop <code>secondaryLabel</code>, secondary label will not display in the TextArea Component.</li>
+        <li>If you don't pass prop <code>characterLimit</code>, character limit will not display  in the TextArea Component.</li>
+        <li>If you don't pass prop <code>secondaryButtonLabel</code>, secondaryButton does not display in the EmptyState Component.</li>
+        <li>If you don't pass prop <code>primaryButtonLabel</code>, primaryButton does not display in the EmptyState Component.</li>
+        <li>Now when you open new child menu, prev child menu closes.</li>
+        <li>If you don't pass prop <code>header</code>, header does not display in the Slider Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Prop <code>isMessageIconDisabled</code> to disable Message Icon in the Header Component.</li>
+        <li>Props <code>isRequired</code>, <code>isError</code>, <code>width</code> & <code>height</code> added in the TextArea Component.</li>
+        <li>Prop <code>customLabel</code> added to the ProgressBar Component to display custom label instead of default time label.</li>
+        <li>Prop <code>isCloseWhenClickOutside</code> added to the Select and Sidebar Component.</li>
+        <li>Prop <code>isDisabled</code> added to Sidebar Routes to disable menu routes in the Sidebar Component.</li>
+        <li>Prop <code>isRequired</code> and <code>isDisabled</code> added to the Slider Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed extra space and alignment between Select' options's label and the Tooltip in the Select Component.</li>
+        <li>Removed Extra margin around the TextArea Components.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.7]</h2><span><strong>Release Date</strong>: 1/10/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Tooltip added to the Select's component selected tags.</li>
+        <li>Tooltip added to the Select's component options label, when label length is longer than 25 character.</li>
+        <li>Changed <code>min-width</code> of the Input Component to 240px.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Prop <code>isRequired</code> added for Input's label Component.</li>
+        <li>Prop <code>handleLogoClick</code> added to handle click event on the Logo in the Header Component.</li>
+        <li>Prop <code>showMonthYearSelect</code> added to DatePicker and DateRangePicker Component to display custom select Month or Year.</li>
+        <li>Prop <code>customYears</code> added to DatePicker and DateRangePicker Component to display custom Year list.</li>
+        <li>Prop <code>dropDownPortalClassName</code> added to the Select Component's dropdown container when <code>withPortal</code> is <code>true</code>.</li>
+        <li>Prop <code>toggleSelectAll</code> added to the Select Component to display Select All/Deselect All checkbox.</li>
+        <li>Props <code>showNotificationIcon</code>, <code>showHelpIcon</code>, <code>showMessageIcon</code> & <code>showChatBotIcon</code> to display various icons on the Header Component.</li>
+        <li>Prop <code>handleChatBotClick</code> added to handle click event on the ChatBot Icon in the Header Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Added <code>onClearAll</code> to close clear selection button in Select Component.</li>
+        <li>Fixed removing selected tag from the Select Component.</li>
+        <li>Fixed Header's Component Logo breaking issue.</li>
+        <li>Fixed DateRangePicker input text's color.</li>
+        <li>If footer buttons props are not passed, Panel body takes all given height in the Panel Component.</li>
+    </ul>
+
+</section>
+
+<section>
+   <div className="changelog-heading"><h2>[3.1.6]</h2><span><strong>Release Date</strong>: 23/09/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Made <code>Cancel</code> button in DateRangePicker optional. If you don't pass, <code>onSecondaryButtonClick</code> callBack function, <code>Cancel</code> button will not appear.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Props <code>notificationIndicator</code> and <code>handleNotificationClick</code> is added to the Header components to display Notification Icon & Notification Indicator.</li>
+        <li>Prop <code>isError</code> added to the DatePicker and DateRangePicker Component to give feedback on Error input.</li>
+        <li>Custom callback function prop <code>handleDatesChange</code> is added to handle the date change event in  the DateRangePicker Component.</li>
+        <li>Custom callback function prop <code>handleDateChange</code> is added to handle the date change event in  the DatePicker Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed component touching edge issue in <code>ag-menu</code> by adding padding <code>10px</code> to <code>ag-menu</code> of the Table Component.</li>
+        <li>Fixed drop-icon position in pagination-dropdown of the Table Component.</li>
+        <li>Disable Dates correct font color is being Displayed properly in DatePicker and DateRangePicker Component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.5]</h2><span><strong>Release Date</strong>: 17/09/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Changed <code>Reset</code> button to <code>Clear</code> in DateRangePicker component.</li>
+        <li>Changed <code>width</code> of the Select, DatePicker & DateRangePicker to 240px.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Props <code>isOpen</code> and <code>setIsOpen</code> is added to the Select components to handle Select's dropdown display.</li>
+        <li>Added props <code>isOpen</code>, <code>setIsOpen</code>and <code>handleClose</code> to handle Sidebar open/close functionality.</li>
+        <li>Added <code>isRequired</code> in DateRange and DatePicker components.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Removed padding from the label of the Date Picker & Date Range Picker component.</li>
+        <li>Fixed overflow issue in Select's Dropdown container.</li>
+        <li>Fixed height issue in DatePicker and DateRangePicker.</li>
+        <li>Changed height property in the Date Picker & Date Range Picker component to fit extra row of calendar.</li>
+        <li>Fixed Sidebar open/close icon position.</li>
+        <li>Removed empty state when footer is not present in the Modal and FilterPanel component.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.2]</h2><span><strong>Release Date</strong>: 12/09/2024</span></div>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Fixed Table undefined map issue.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.1]</h2><span><strong>Release Date</strong>: 10/09/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Removed external <code>setIsOpen</code> function from Filter Panel, Panel & Modal. Now <code>handleClose</code> handles Component being closed. </li>
+        <li>Changed <code>onChange</code> props to <code>handleChange</code> in the Select Component.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li><code>isError</code> flag added in the Select Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Input key other than alpha and numeric key give error while searching in Select Component.</li>
+        <li>Fixed transition time in Sidebar of expand icon's label.</li>
+    </ul>
+
+</section>
+
+<section>
+    <div className="changelog-heading"><h2>[3.1.0]</h2><span><strong>Release Date</strong>: 6/09/2024</span></div>
+
+    <h4>Changed</h4>
+
+    <ul>
+        <li>Instead of passing label to Button, It can be passed as children.</li>
+        <li>Footer Buttons of Modal & Filter panel are made optional, If not passed buttons will not appear.</li>
+        <li><code>numberOfFilter</code> in Filter Panel are made optional, If not passed, will not appear.</li>
+    </ul>
+
+    <h4>Added</h4>
+
+    <ul>
+        <li>Now you can do multiple search, when isMulti props is passed, in Select Dropdown component.</li>
+        <li>Added clear selection button in Select Dropdown component.</li>
+        <li>New Pattern, Sidebar component is added.</li>
+        <li>Icon Orientation option, <code>iconPlacement</code> props added in the Button component.</li>
+        <li>Added prop <code>className</code> in the Button component.</li>
+        <li>Added prop <code>isRequired</code> for required Indicator added to Select Component.</li>
+    </ul>
+
+    <h4>Fixed</h4>
+
+    <ul>
+        <li>Clear Selection is appearing in Select Dropdown.</li>
+        <li>Icon passed in Button component, takes Button's container color.</li>
+        <li>Fixed FilterPanel Tab's label text wrap issue, added ellipsis.</li>
+    </ul>
+
+</section>
+
+</div>
+
+<style>
+  {`
+    .ia-styles.ia-guide-container {
+      color: red
+    }
+
+    .changelog-heading{
+        display:flex;
+        justify-content: space-between;
+        align-items:baseline;
+        padding-bottom:8px !important;
+        margin-bottom:20px !important;
+        border-bottom: 1px solid hsla(203, 50%, 30%, 0.15);
+    }
+
+    .changelog-heading span{
+        color:#3649c6;
+    }
+
+    section {
+      margin-top: 36px;
+    }
+
+    a p {
+      color: blue !important;
+    }
+
+    .flex {
+      display: flex;
+      gap: 4px;
+    }
+
+    h2{
+        font-weight:600;
+        border-bottom: none !important;
+    }
+
+    h4{
+        font-weight:600;
+    }
+
+    code {
+      font-family: monospace;
+      color: white;
+      background: slategray;
+      padding: 8px 16px;
+      display: inline-block;
+      margin: 8px;
+      border-radius: 4px;
+    }
+  `}
+</style>

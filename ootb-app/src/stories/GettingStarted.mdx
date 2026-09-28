@@ -1,0 +1,155 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Getting Started" />
+
+<div className="ia-styles ia-guide-container">
+  <h1>Welcome to Impact UI v3!</h1>
+  <p>Our updated internal UI library designed to streamline and standardize your development experience. This new version is built on MUI, aligning with the technology stack of our other tools to make integration and migration smoother than ever. We’re excited to help you leverage the power of Impact UI to build cohesive and high-quality user interfaces across our applications.</p>
+
+<p>
+  Impact UI V3 is based on MUI, a popular and versatile React component library.
+  By leveraging MUI, Impact UI provides a robust foundation of pre-built
+  components and design patterns that are consistent with the rest of our
+  company’s tools. This ensures a seamless experience and helps maintain design
+  coherence across all our projects.
+</p>
+
+<section>
+  <h4>Figma Link</h4>
+  <p className="flex">
+    For design assets and components, visit our
+    <a href="https://www.figma.com/design/a3elYamUGSeoXJiHPyJaVx/IA-Design-sytsem-V.3.0?node-id=1-2">
+      Latest Figma
+    </a>
+    where you can explore all the available design elements and guidelines.
+  </p>
+</section>
+
+<section>
+  <h3>Setup</h3>
+  <p>To install, run: </p>
+  <code>npm install impact-ui@latest</code>
+  <p>A component is imported like this: </p>
+  <code>import \{Button} from 'impact-ui';</code>
+</section>
+
+<section>
+  <h3>Basic usage</h3>
+  <p></p>
+  <h4>Atomic comps</h4>
+  <p>
+    You can pretty much directly use the components like you would from MUI
+    (except for minor differences here and there) and most of the props (like
+    sx) should work fine
+  </p>
+  <h4>Compound comps</h4>
+  <p>
+    Some components have used MUI, and some haven't. As such, you will need to
+    refer to the respective documentation to check if you can use MUI's props to
+    manipulate them.
+  </p>
+
+  <h4>Demo</h4>
+  <p className="flex" style={{margin:"0"}}>
+    You can checkout live Demo at
+    <a href="https://codesandbox.io/p/sandbox/naughty-chatelet-8k5lcx" target="_blank" rel="noopener noreferrer">
+      CodeSandbox Demo
+    </a>
+    where you can explore all the available components & usage.
+  </p>
+  <p>
+    Note: If you find you need to change a component from it's expected usage
+    (or design), you can do so by targeting the className of the element and
+    applying new styles to it. We haven't used important keyword unless
+    absolutely necessary
+  </p>
+</section>
+
+<section>
+  <h3>Support</h3>
+  <p p className="flex" style={{ margin: "0" }}>
+    To propose a new feature, change, or report a bug, please submit a{" "}
+    <a
+      href="https://impactanalytics.atlassian.net/jira/software/c/projects/DES/issues"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Jira ticket
+    </a>{" "}
+    for the Design Systems project on our office Jira board
+  </p>
+</section>
+
+<section>
+  <h3>Caution</h3>
+  <p>
+    Since the library uses MUI, you should remove any pre-existing MUI themes or
+    styles as there can be conflicts.
+  </p>
+</section>
+
+<section>
+  <h3>Interim point of contact</h3>
+  <p>
+    Until official support channels are established, you can directly contact
+    Aaquib Ahmed, Harish V.
+  </p>
+</section>
+
+<section>
+  <h3>Credits</h3>
+  <ul>
+    <li>
+      Developers: Aaquib Ahmed, Jaymin Pancholi, Ashutosh Birla & Kunal Patil
+    </li>
+    <li>Lead: Harish V</li>
+    <li>Designer: Sudip sarkar & Jaymin Pancholi</li>
+    <li>UX/UI: Kalyan, Vikram & Tasneem</li>
+  </ul>
+</section>
+
+</div>
+
+<style>
+  {`
+
+  h1, h2, h3, h4{
+      margin-bottom:16px;
+  }
+
+    h4{
+      font-weight:600;
+    }
+
+    p{
+      margin:8px 0;
+    }
+
+    .ia-styles.ia-guide-container {
+      color: red
+    }
+
+    section {
+      margin-top: 36px;
+    }
+
+    a p {
+      color: blue !important;
+    }
+
+    .flex {
+      display: flex;
+      gap: 4px;
+    }
+
+    code {
+      font-family: monospace;
+      color: white;
+      background: slategray;
+      padding: 8px 16px;
+      display: inline-block;
+      margin: 8px;
+      border-radius: 4px;
+    }
+  `}
+</style>

@@ -1,0 +1,170 @@
+@import "../../styles/index.scss";
+
+.impact_slider_layout {
+  display: flex;
+  gap: 16px;
+  // flex-wrap: wrap;
+  .input_layout_style {
+    .MuiFormControl-root {
+      .MuiInputBase-root {
+        height: 32px;
+        border: 1px solid #c3c8d4;
+        border-radius: 8px;
+        width: 75px;
+
+        &:focus {
+          border: 1px solid $primaryColor;
+        }
+
+        &:hover {
+          border: 1px solid $primaryColor;
+        }
+
+        fieldset {
+          border: none !important;
+        }
+      }
+    }
+  }
+  .impact_slider_layout_heading {
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 30.05px;
+  }
+
+  .header-top {
+    flex-direction: column;
+  }
+
+  .header-left {
+    flex-direction: row;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .impact_slider_container {
+    width: 390px;
+    .impact_slider_labelname {
+      font-size: 12px;
+      font-weight: $normalFontWeight;
+      color: $textButtonFontColor;
+    }
+    .impact_slider_main_container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .MuiSlider-root {
+        color: $primaryColor;
+        height: 4px;
+      }
+      .MuiSlider-rail {
+        background: $disabledSecondaryBorder;
+        opacity: 1;
+      }
+      .MuiSlider-thumb:hover {
+        box-shadow: 0px 0px 0px 6px rgba(66, 89, 238, 0.2);
+      }
+      .MuiSlider-valueLabel {
+        background-color: #0d152c;
+        color: $whiteColor;
+      }
+    }
+
+    .impact_slider_main_container_disabled {
+      pointer-events: none;
+      .MuiSlider-root {
+        color: $deactivateColor;
+        height: 4px;
+      }
+      .MuiSlider-rail {
+        background: $deactivateColor;
+        opacity: 1;
+      }
+    }
+  }
+
+  .impact_slider_disabled {
+    .MuiSlider-root {
+      color: $disabledSecondaryBorder !important;
+    }
+    .MuiInputBase-root {
+      color: $disabledSecondaryBorder;
+      border: 1px solid $disabledSecondaryBorder;
+      background: $inactiveInputBackground;
+
+      &:focus {
+        border: 1px solid $disabledSecondaryBorder !important;
+      }
+
+      &:hover {
+        border: 1px solid $disabledSecondaryBorder !important;
+      }
+
+      fieldset {
+        border: none !important;
+      }
+    }
+  }
+
+  // Input layout styles
+  .input_layout_style {
+    &.ranged {
+      form {
+        display: flex;
+        align-items: center;
+        .MuiFormControl-root {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          flex-grow: 1;
+        }
+      }
+    }
+
+    &.single {
+      form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .MuiFormControl-root {
+          width: 120px;
+        }
+      }
+    }
+  }
+}
+
+// Input position styles
+.input-position-inline {
+  align-items: flex-end !important;
+  .impact_slider_layout {
+    display: flex;
+    gap: 24px;
+
+    .impact_slider_main_container {
+      flex: 1;
+    }
+
+    .input_layout_style {
+      flex-shrink: 0;
+    }
+  }
+}
+
+.input-position-bottom {
+  flex-direction: column;
+  .impact_slider_layout {
+    display: flex;
+    gap: 16px;
+
+    .impact_slider_main_container {
+      width: 100%;
+    }
+
+    .input_layout_style {
+      align-self: flex-end;
+    }
+  }
+}

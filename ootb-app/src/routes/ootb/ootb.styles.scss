@@ -1,0 +1,27 @@
+.ootb-page {
+  &__title {
+    font-weight: 800;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  &__desc {
+    color: #6b7089;
+    font-size: 13.5px;
+    max-width: 76ch;
+    margin: 0 0 20px;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  &__search {
+    flex: 1 1 260px;
+    max-width: 360px;
+  }
+}

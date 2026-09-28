@@ -1,0 +1,49 @@
+﻿table_name,param_key,label,default,description
+oms_supersession_mapping,Child SKU Column Name,,,Column which is equivalent to Sub SKU/Style
+oms_supersession_mapping,Parent SKU Column Name,,,Column which is equivalent to Main SKU/Style
+oms_supersession_mapping,Supersession Table,,supersession_master,Table which has supersession data
+oms_pack_config,Pack Type,,Master Pack,"Pack Type like Whole Sale Pack, Master Pack, Solid Pack etc"
+oms_constraints_status,Product Filter,,TRUE,Product Specific filters which are Ordering Eligible by Default
+oms_historical_error_calculation,ADA Historical Forecast Table,,oms_historical_forecast,Historical Forecast Table shared by ADA team
+oms_historical_error_calculation,Ecom Channel Name,,ecommerce,Channel name for Ecom stores
+oms_event_weeks,Events Table,,event_master_all_countries,Client specific events mapping table
+oms_constraints_order_policy,Default Replenishment Strategy,,Periodic Review,Periodic Review or Reorder Point
+oms_constraints_order_policy,Default Scheduler,,dc_monthly_scheduler,Default Ordering Scheduler
+oms_constraints_order_policy,Default Order Strategy,,Order Cycle Based,Order Cycle Based or Week of Supply
+budget_allocation,Budget Data Table,,oms_planned_receipts,Hierarchy level Budget Data Table
+oms_constraints_lead_time,PO to Order Processing Time,,1,Order to PO Processing Time in Days
+oms_constraints_lead_time,Lead Time,,90,Lead Time in Days
+oms_constraints_lead_time,Shipping Lead Time,,0,Shipping Lead Time in Days
+oms_constraints_lead_time,QC Time,,0,QC Time in Days
+oms_constraints_lead_time,Default Mode of Shipment,,ship,"Default Mode of Shipment (boat, ship, air, truck etc)"
+oms_constraints_lead_time,Fabric Lead Time,,0,Fabric Lead Time in Days
+oms_constraints_lead_time,Manufacturing Lead Time,,0,Manufacturing Lead Time in Days
+oms_constraints_shipment,Minimum Replenishment Quantity,,1,Minimum Shipment Order Quantity
+oms_constraints_shipment,Maximum Replenishment Quantity,,999999,Maximum Shipment Order Quantity
+oms_constraints_shipment,Order Multiple,,1,Order Multiple Value
+oms_constraints_shipment,MOQ Tolerance,,80,Tolerance Value
+oms_constraints_safety_stock,Default Safety Stock Method,,WOS,Safety Stock Method
+oms_constraints_safety_stock,Default Safety Stock WOS,,4,Safety Stock Target WOS
+oms_constraints_safety_stock,Default Demand WOS,,8,Demand Target WOS
+oms_constraints_safety_stock,Default Service Level Percentage,,95,Service Level Percentage
+oms_constraints_safety_stock,Default Safety Stock Units,,0,Safety Stock Units
+oms_product_profile_weeks,Ecommerce Stores,,"""abc"", ""123"", ""xyz""",List of Ecommerce Stores with Single Quotes Separated by Comma
+oms_events_and_holidays,Country Column,,country,Country Equivalent Column in Store Master
+oms_events_and_holidays,Region Column,,region,Region Equivalent Column in Store Master
+oms_hierarchy_constraints,Level of Application,,sum_all,Summ of All or Applicable to All
+oms_hierarchy_constraints,Order Multiple,,1,Order Multiple Value
+oms_hierarchy_constraints,Minimum Replenishment Quantity,,1,Minimum Vendor Order Quantity
+oms_hierarchy_constraints,Maximum Replenishment Quantity,,999999,Maximum Vendor Order Quantity
+oms_hierarchy_constraints,MOQ Tolerance,,0.8,Tolerance Value
+oms_sku_hierarchy,Article,,,Article column or Equivalent
+oms_sku_hierarchy,Style ID,,,Style ID column or Equivalent
+oms_sku_hierarchy,Size,,,Size column or Equivalent
+oms_sku_hierarchy,Vendor Name,,,Vendor Name column or Equivalent
+oms_sku_hierarchy,Vendor ID,,,Vendor ID column or Equivalent
+oms_sku_hierarchy,Unit Cost,,,Unit Cost column or Equivalent
+oms_sku_hierarchy,Hierarchy 1,,"""-""",Hierarchy 1
+oms_sku_hierarchy,Hierarchy 2,,"""-""",Hierarchy 2
+oms_sku_hierarchy,Hierarchy 3,,"""-""",Hierarchy 3
+oms_sku_hierarchy,Hierarchy 4,,"""-""",Hierarchy 4
+oms_sku_hierarchy,Hierarchy 5,,"""-""",Hierarchy 5
+oms_sku_hierarchy,Hierarchy 6,,"""-""",Hierarchy 6

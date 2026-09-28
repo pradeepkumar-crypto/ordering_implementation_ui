@@ -1,0 +1,66 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-snackbar {
+  .MuiPaper-root {
+    height: 51px;
+    text-align: center;
+    justify-content: center;
+    box-shadow: 0px 10px 30px 0px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+
+    &::after {
+      content: " ";
+      height: 4px;
+      position: absolute;
+      background: tomato;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 0 0 4px 4px;
+    }
+  }
+  .css-1arijsr-MuiSnackbar-root {
+    z-index: 999999;
+  }
+
+  .MuiSnackbarContent-message {
+    font-size: 14px;
+    font-weight: $normalFontWeight;
+  }
+
+  &.ia-snackbar-success {
+    .MuiPaper-root {
+      background: $greenBadge;
+      &::after {
+        background: $successToastStroke;
+      }
+    }
+  }
+  &.ia-snackbar-info {
+    .MuiPaper-root {
+      background: $primaryColor;
+      &::after {
+        background: #687af1;
+      }
+    }
+  }
+  &.ia-snackbar-warning {
+    .MuiPaper-root {
+      background: $warningAlertIcon;
+      &::after {
+        background: #edd77f;
+      }
+    }
+    .MuiSnackbarContent-message {
+      color: $darkColor;
+    }
+  }
+  &.ia-snackbar-error {
+    .MuiPaper-root {
+      background: $redBadge;
+      &::after {
+        background: #ed9998;
+      }
+    }
+  }
+}

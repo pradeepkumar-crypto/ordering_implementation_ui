@@ -1,0 +1,495 @@
+@import "../../styles/index.scss";
+
+.impact-notification-container {
+  width: 600px;
+  height: 100%;
+  transition: width 200ms ease-in;
+  .impact-notification-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    align-items: center;
+    background-color: #fff;
+    border-bottom: 1px solid #d9dde7;
+
+    .impact-notification-heading {
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: $BoldFontWeight;
+    }
+
+    .impact-notification-header-action-btns {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      button {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background-color: #f5f6fa;
+        cursor: pointer;
+      }
+    }
+
+    .collapse-icon {
+      background: url("../../assets/collapse-icon-2.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .expand-icon {
+      background: url("../../assets/expand-icon.svg") no-repeat;
+      background-size: 20px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .impact-notification-header-close-btn {
+      background: url("../../assets/close-tags.svg") no-repeat;
+      background-size: 24px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  }
+
+  .impact-notification-body-container {
+    padding: 20px 16px;
+    height: calc(100% - 96px);
+  }
+
+  .notification-body-container-full {
+    height: calc(100% - 40px);
+  }
+
+  .impact-notification-body-header-container {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: baseline;
+
+    .ia-tabContainer {
+      width: 100%;
+      height: 100%;
+
+      .impact-tab-panel {
+        // border: 1px solid red;
+        position: absolute;
+        width: calc(100% - 32px);
+        padding: 20px 0 0 0;
+        height: calc(100% - 156px);
+        overflow: hidden;
+
+        .ia-tabPanel {
+          height: 100%;
+          // border: 1px solid blue;
+        }
+      }
+    }
+
+    .ia-styles.ia-btn {
+      flex-shrink: 0;
+    }
+  }
+
+  .impact-notification-task-list-filter-container {
+    position: absolute;
+    top: 65px;
+    width: 379px;
+    right: 0;
+    min-height: 128px;
+    border: 1px solid #b3bdf8;
+    border-radius: 12px;
+    z-index: 99999;
+    background: white;
+    padding: 16px;
+  }
+
+  .impact-notification-task-list-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .impact-notification-task-list-title {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    .impact-notification-task-list-title-text {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: $semiBoldFontWeight;
+      color: $mainFontColor;
+    }
+    .impact-notification-task-list-title-text-sub {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: $normalFontWeight;
+      color: $textButtonFontColor;
+    }
+  }
+
+  .impact-notification-task-list-filter-item-badge {
+    .MuiChip-root.impact_badges_only_label_subtle {
+      border: 1px solid $destructiveSecondaryBg;
+      background-color: $textButtonPrimaryBg;
+      cursor: pointer;
+      .MuiChip-label {
+        color: $inputInfoColor;
+      }
+    }
+    &.selected {
+      .MuiChip-root.impact_badges_only_label_subtle {
+        border: 1px solid $primaryColor;
+        background-color: $lightBlueColor;
+        cursor: pointer;
+        .MuiChip-label {
+          color: $primaryColor;
+        }
+      }
+    }
+  }
+
+  .body-header-container-full {
+    .ia-tabContainer {
+      .impact-tab-panel {
+        height: calc(100% - 100px);
+      }
+    }
+  }
+
+  .impact-notification-footer-container {
+    position: absolute;
+    bottom: 0;
+    background: white;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 16px;
+    height: 56px;
+    border-top: 1px solid #d9dde7;
+    left: 0;
+    right: 0;
+  }
+}
+
+.impact-notification-task-list-container {
+  height: 100vh;
+  // border: 1px solid blue;
+  .impact-notification-task-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #d9dde7;
+  }
+
+  .impact-notification-task-list-search-container {
+    position: relative;
+
+    .impact-input-wrapper {
+      height: 27px;
+      width: 35px;
+      min-width: 100% !important;
+      transition: width 200ms ease-in-out;
+    }
+
+    .right-input-icon {
+      position: relative;
+      top: 1px;
+      right: 7px;
+    }
+  }
+
+  .search-expand {
+    .impact-input-wrapper {
+      width: 240px;
+    }
+
+    .right-input-icon {
+      left: 0px;
+    }
+  }
+
+  .ia-styles.ia-btn.ia-btn-text:focus {
+    outline: none;
+  }
+
+  .impact-notification-task-list-chips {
+    display: flex;
+    gap: 4px;
+    overflow: hidden;
+    flex-basis: 90%;
+
+    .impact-notification-task-list-item {
+      display: flex;
+      gap: 4px;
+      .MuiChip-label {
+        font-size: $smallFontSize !important;
+      }
+    }
+
+    .impact-notification-task-list-item-hidden {
+      display: flex;
+      gap: 4px;
+      width: 0;
+      overflow: hidden;
+      transition: width 200ms ease-in;
+    }
+
+    .list-item-full-width {
+      width: 100%;
+    }
+  }
+
+  .impact-notification-task-list-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+}
+
+// notification list
+
+.impact-notification-list-container {
+  padding-top: 20px;
+  height: 100%;
+
+  .impact-notification-list-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+  }
+
+  .impact-notification-list-title {
+    font-family: $fontFamily;
+    font-size: $mediumFontSize;
+    line-height: $smallComponent;
+    font-weight: $semiBoldFontWeight;
+    color: $mainFontColor;
+  }
+
+  .impact-notification-list-action-btns {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+
+    // button:last-child {
+    //   margin-left: 8px;
+    // }
+  }
+
+  .impact-notification-list-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: calc(100% - 280px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+
+    .impact-notification-list-item {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 16px 12px;
+      // height: 100%;
+      background-color: #f8f9fb;
+      border-radius: 12px;
+
+      .impact-notification-list-item-checkbox {
+        padding-top: 5px;
+      }
+
+      .impact-notification-list-item-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+
+        .impact-notification-list-item-icon-line {
+          width: 2px;
+          height: 15px;
+        }
+      }
+
+      .status-success {
+        border: 1px solid $greenBadge;
+        background-color: $successBackground;
+
+        .impact-notification-list-item-icon-line {
+          background-color: $greenBadge;
+        }
+      }
+
+      .status-fail {
+        border: 1px solid $redBadge;
+        background-color: $redBadgeStrokeBg;
+
+        .impact-notification-list-item-icon-line {
+          background-color: $redBadge;
+        }
+      }
+
+      .status-pending {
+        border: 1px solid $yellowBadge;
+        background-color: $yellowBadgeStrokeBg;
+
+        .impact-notification-list-item-icon-line {
+          background-color: $yellowBadge;
+        }
+      }
+
+      .impact-notification-list-item-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        width: 100%;
+
+        .impact-notification-list-item-header {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+
+          &:focus,
+          &:hover {
+            cursor: pointer;
+            .impact-notification-list-item-header-right {
+              width: 24%;
+            }
+          }
+
+          .impact-notification-list-item-header-left,
+          .impact-notification-list-item-header-right {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+          }
+          .impact-notification-list-item-title {
+            font-family: $fontFamily;
+            font-size: $normalFontSize;
+            line-height: 21px;
+            font-weight: $ExtraFontWeight;
+            color: $darkColor;
+          }
+
+          .impact-notification-list-item-header-right {
+            // display: none;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.4s ease-in-out;
+          }
+        }
+
+        .impact-notification-list-item-schedule {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          justify-content: flex-start;
+          align-items: center;
+          font-family: $fontFamily;
+          font-size: $smallFontSize;
+          line-height: 15px;
+          font-weight: $normalFontWeight;
+          color: $grayBadge;
+        }
+
+        .impact-notification-list-item-description {
+          font-family: $fontFamily;
+          font-size: $normalFontSize;
+          line-height: 20px;
+          font-weight: $normalFontWeight;
+          color: #394960;
+
+          span {
+            color: $primaryColor;
+            cursor: pointer;
+          }
+        }
+
+        .impact-notification-list-item-action-btns {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+        }
+      }
+    }
+
+    .list-item-selected {
+      background-color: #eceefd;
+    }
+
+    .list-item-read {
+      border-left: 3px solid #4259ee;
+    }
+  }
+}
+
+.impact-notification-container-expand {
+  width: 800px;
+}
+
+.impact-notification-list-item-bookmark-btn.ia-styles.ia-btn.ia-btn-text {
+  svg {
+    path {
+      fill: #4258ed !important;
+    }
+  }
+}
+
+.impact-notification-list-header .impact-notification-list-title-loader {
+  .css-tqb5fd-MuiSkeleton-root {
+    display: none;
+  }
+  .css-58ftfq-MuiSkeleton-root {
+    width: 40px !important;
+  }
+}
+
+.impact-notification-list-loader-container {
+  .css-70qvj9 {
+    position: absolute;
+    top: calc(50% - 15px);
+    left: calc(50% - 157px);
+  }
+}
+
+.impact-notification-list-action-btns-loader {
+  .css-tqb5fd-MuiSkeleton-root {
+    display: none;
+  }
+  .css-1366qbr {
+    position: absolute;
+    right: calc(50% - 150px);
+  }
+}

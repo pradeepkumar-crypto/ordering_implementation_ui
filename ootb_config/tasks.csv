@@ -1,0 +1,97 @@
+name,order,group,type,usage,exec_deps,masters,vague,note
+oms_inventory_master,0,P0,derived,Ordering Inventory Master,,inventory_master;store_master,,Generic Inventory Master table consumed by Ordering Derived Tables.
+oms_sku_hierarchy,0,P0,derived,Ordering Product Master,,product_master,,Generic Product Master table consumed by Ordering Derived Tables.
+oms_transaction_master,0,P0,derived,Ordering Transaction Master,,transaction_master;store_master,,Generic Transaction Master table consumed by Ordering Derived Tables.
+article_status_tag,1,P1,derived,Size Sorting Table,,,,"This table should already be created by AnR team, Need to conform."
+budget_product_hierarchy,1,P1,derived,Budget Data Hierarchy Table,oms_sku_hierarchy,,,This table is required for clients who opted to show hierarchy level budget data over the tool.
+budget_time_periods,1,P1,derived,Budget Data Time Periods Table,,fiscal_date_mapping,,This table is required for clients who opted to show hierarchy level budget data over the tool.
+hierarchy_rankings,1,P1,derived,Budget Data Ranking Table,,product_master,,This table is required for clients who opted to show hierarchy level budget data over the tool.
+oms_constraints_status,1,P1,derived,Replenishment Status Table,oms_sku_hierarchy,,,"This table contains Replenishment Status of each ordering eligible sku.
+User edits over the tool will be captured through backsync table."
+oms_dc_product_mapping,1,P1,derived,Product DC Mapping Table,distribution_centres;product_mapping_product_dc;oms_sku_hierarchy,,,This table contains active sku-dc combinations based AnR product-dc mapping.
+oms_fiscal_date_mapping,1,P1,derived,Fiscal Calendar,,fiscal_date_mapping,,This table contains ordering required fiscal calendar columns with aliased.
+oms_historical_error_calculation,1,P1,derived,Historical Forecast Table,oms_historical_forecast;oms_sku_hierarchy,,,"This table contains historical forecast data at hierachy-week level over past 2-3 years.
+This table is used for calculating error standard deviation."
+oms_pack_config,1,P1,derived,Pack Details Table,oms_sku_hierarchy,pack_configuration_master,,This table contains pack configuration details.
+oms_supersession_mapping,1,P1,derived,Parent-Child SKU Mapping Table,,supersession_table,,This table provides parent sku to child sku mapping.
+oms_cycle_multiplier,1,P1,one_time,Used in Order to Shipment Split,,,,"This is a one time table which gets used in order to shipment split while calculating recommendations.
+Clients which has not opted for order to shipment split, can create an empty table."
+oms_events_and_holidays,1,P1,one_time,Events Data Table,,store_master,,"This table provides events and holidays data region wise.
+It is used in showing data in Deep Dive Graph."
+oms_sl_coeff,1,P1,one_time,Z Score Values Table,,,,"This table provides z-score data for each service level from 0.5 to 0.99.
+This info is used in Safety Stock vs Service Level graph in Target Inventory Levels screen."
+oms_vendor_closure,1,P1,one_time,Vendor Closing Schedule,oms_sku_hierarchy,,,"This table contains vendor closure details. It should be shared by client ideally.
+Currently this table is considered as one time table because there is no requirement from any client till now.
+If your client has vendor closure concept, then you can use the particular table to fetch data."
+oms_dc_reserve_qty,1,P1,backsync,DC Reserve Data Table,,,,Created through dc_reserve_qty table from Postgresql.
+product_profile_user_mapping_size,1,P1,backsync,User Defined Product Profiles Table,,,,"This is an AnR table which has user created product profile info.
+Make sure that this table exists in AnR schema."
+oms_lf_master,1,P1,dynamic,Item Smart LF Table,,,,"Created through Item Smart to Ordering Integration.
+If client has Item Smart module and if client expect to use forecast data from item smart then we need to raise a ticket to Engineering team to setup Item Smart to OMS integration.
+Once integration has been setup, any edits in Item Smart module will be reflected in GBQ tables."
+oms_op_master,1,P1,dynamic,Item Smart OP Table,,,,"Created through Item Smart to Ordering Integration.
+If client has Item Smart module and if client expect to use forecast data from item smart then we need to raise a ticket to Engineering team to setup Item Smart to OMS integration.
+Once integration has been setup, any edits in Item Smart module will be reflected in GBQ tables."
+oms_wp_master,1,P1,dynamic,Item Smart WP Table,,,,"Created through Item Smart to Ordering Integration.
+If client has Item Smart module and if client expect to use forecast data from item smart then we need to raise a ticket to Engineering team to setup Item Smart to OMS integration.
+Once integration has been setup, any edits in Item Smart module will be reflected in GBQ tables."
+rcl_oms_constraint_master,1,P1,pg,Vendor Constraints Table,,,,Table Schema should be created in Postgresql.
+rcl_oms_constraint_master_rule,1,P1,pg,Vendor Constraints Table,,,,Table Schema should be created in Postgresql.
+rcl_priority_mapping,1,P1,pg,RCL Priorities Table,,,,Data for module_code 7001 should be inserted.
+generate_all_week_level_rcl_constraint_data,1,P1,resolution_sp,Store Constraints Resolution SP,,,,"This is a OMS  generic resolution SP which resolves AnR store constraints from RCL level to product-store-week level.
+This SP is generic across clients. Need to validate resolved data and if any client specific changes are required, those can be made by DB Team."
+generate_rcl_dc_store_policy,1,P1,resolution_sp,DC Store Policy Resolution SP,,,,"This is a AnR generic resolution SP which resolves DC Store Policy rules.
+Make sure that this SP exists in AnR schema."
+oms_event_weeks,2,P2,derived,Events Mapping Table,oms_fiscal_date_mapping;event_master_all_countries,,,This is a client specific events table which is at fiscal_year_week level.
+oms_future_sales_units,2,P2,derived,Forecast Table,oms_lf_master;oms_wp_master;ada_visual_predictions_updated;oms_sku_hierarchy,,,"This is a forecast base table.
+Clients which opted to use forecast from ADA can use ada forecast table.
+Clients which opted to use forecast from Item Smart can use Item Smart integration tables."
+oms_product_hybrid_attributes,2,P2,derived,Product Eligibility Info Table,oms_constraints_status;oms_sku_hierarchy,,,This is the base ordering recommendations eligibility table which contains all skus from product master.
+oms_orders_approved,2,P2,backsync,Approved Orders Table Backsynced from Tool,,,,"Note : This table structure, table name, logic might get changed based on new Clickhouse implementation."
+oms_orders_recommended,2,P2,backsync,Recommendations Table Backsynced from Tool,,,,"Note : This table structure, table name, logic might get changed based on new Clickhouse implementation."
+rcl_week_level_constraint_data,2,P2,backsync,Result of Store Constraints Resolution SP,generate_all_week_level_rcl_constraint_data,,,Created through Resolution Stored Procedure : generate_all_week_level_rcl_constraint_data.
+resolved_product_profile,2,P2,backsync,Result of Product Profile Resolution SP,generate_rcl_dc_store_policy,,,Created through Resolution Stored Procedure : generate_rcl_dc_store_policy.
+generate_rcl_oms_constraint_data,2,P2,resolution_sp,Vendor Constraints Resolution SP,rcl_oms_constraint_master;rcl_oms_constraint_master_rule,,,"This is a OMS  generic resolution SP which resolves Ordering vendor constraints from RCL level to product  level.
+This SP is generic across clients. Need to validate resolved data and if any client specific changes are required, those can be made by DB Team."
+budget_allocation,3,P3,derived,Budget Data,fiscal_date_mapping;budget_product_hierarchy;budget_time_periods;po_master;oms_sku_hierarchy,po_master,,This table is required for clients who opted to show hierarchy level budget data over the tool.
+oms_constraints_lead_time,3,P3,derived,Lead Time Table,oms_product_hybrid_attributes;oms_dc_product_mapping;oms_sku_hierarchy,,,"This table contains Lead Time data of each ordering eligible style-dc.
+User edits over the tool will be captured through backsync table."
+oms_constraints_order_policy,3,P3,derived,Vendor DC Policy Table,oms_product_hybrid_attributes;oms_sku_hierarchy,,,"This table contains Vendor DC Policy of each ordering eligible style.
+User edits over the tool will be captured through backsync table."
+oms_constraints_safety_stock,3,P3,derived,Target Inventory Levels Table,oms_product_hybrid_attributes;oms_dc_product_mapping;oms_sku_hierarchy,,,"This table contains Safety Stock data of each ordering eligible style-dc.
+User edits over the tool will be captured through backsync table."
+oms_constraints_shipment,3,P3,derived,Shipment Constraints Tabe,oms_product_hybrid_attributes;oms_dc_product_mapping;oms_sku_hierarchy,,,"This table contains Shipment Constraints data of each ordering eligible sku-dc.
+User edits over the tool will be captured through backsync table."
+oms_latest_inventory,3,P3,derived,On Hand DC and Store Inventory Info,oms_product_hybrid_attributes;oms_inventory_master,store_master,,This table provides On Hand Store and DC inventory details for all the ordering eligible SKUs.
+oms_resolved_product_profile_intermediate,3,P3,derived,User Defined Product Profiles Info,oms_product_hybrid_attributes;oms_fiscal_date_mapping;resolved_product_profile;oms_sku_hierarchy,,,This table provides info of  which product profile is attached to a particular style for a particular week.
+oms_sku_store_eligibility,3,P3,derived,Product-Store Eligibility Info,oms_product_hybrid_attributes;oms_fiscal_date_mapping;sku_status;store_status;product_store_mapping;oms_sku_hierarchy,store_master,,This is final ordering recommendation eligible sku-store-week combinations based on AnR sku and store eligibility and ordering sku eligiibility.
+oms_store_constraints_master_1,3,P3,derived,Store Constraints Info,oms_product_hybrid_attributes;rcl_week_level_constraint_data,,,This table contains SKU-Store-Week level contraints from 1-52 weeks.
+oms_store_constraints_master_2,3,P3,derived,Store Constraints Info,oms_product_hybrid_attributes;rcl_week_level_constraint_data,,,This table contains SKU-Store-Week level contraints from 53-104 weeks.
+po_master_por,3,P3,derived,PO Rebalance Table,oms_fiscal_date_mapping;oms_product_hybrid_attributes;oms_supersession_mapping;oms_orders_recommended;oms_orders_approved;oms_sku_hierarchy,store_master;po_asn_master,,This table is required for clients who opted  for PO Rebalance Module over the tool.
+oms_hierarchy_constraints,3,P3,one_time,Vendor Constraints,oms_product_hybrid_attributes;oms_sku_hierarchy,,,"This table can be created for clients whose vendor constraints are shared through client feed.
+Otherwise it will be a one time table to populate data for vendor constraints screen."
+auto_allocation_scheduler,3,P3,backsync,Scheduler Details,,,,"This is AnR table in Postgresql.
+This table contains scheduler info which has been created by users over the tool."
+oms_constraints_vendor_moq,3,P3,backsync,Result of Vendor Constraints Resolution SP,generate_rcl_oms_constraint_data,,,Created through Resolution Stored Procedure : generate_rcl_oms_constraint_data.
+sync_product_hybrid_attributes,3,P3,sync_sp,SP to Update Ordering column in PAF,oms_product_hybrid_attributes,,,Sync Store Procedure to Update Ordering column in PAF using oms_product_hybrid_attributes.
+oms_order_cycle,4,P4,derived,Order Cycles Info,oms_constraints_order_policy;oms_fiscal_date_mapping;oms_product_hybrid_attributes;auto_allocation_scheduler;oms_sku_hierarchy,,,This table provides order placement dates info based on the scheduler attached to each style in vendor dc policy screen.
+oms_po_master,4,P4,derived,Open PO Info,oms_product_hybrid_attributes;oms_constraints_lead_time;oms_fiscal_date_mapping;oms_orders_recommended;oms_orders_approved;oms_sku_hierarchy,po_master,,This table provides Purchase Orders info and also Pseudo PO (Orders which has been sent for approval over the tool) at product-dc-week level.
+oms_product_profile_weeks,4,P4,derived,Product Profile Data,oms_resolved_product_profile_intermediate;product_profile_user_mapping_size;ada_visual_predictions_updated;product_profile_table_oms_combined;oms_sku_hierarchy,,,This table provides product profile info at sku-store-week level along with user created product profiles.
+oms_constraint_master,4,P4,one_time,Vendor Constraints,oms_hierarchy_constraints;rcl_priority_mapping,,,"This table can be created for clients whose vendor constraints are shared through client feed.
+Otherwise it will be a one time table to populate data for vendor constraints screen."
+sync_oms_rcl_constraints,4,P4,sync_sp,SP to Create data in Vendor Constraints,rcl_priority_mapping;rcl_oms_constraint_master;rcl_oms_constraint_master_rule,,,Sync Store Procedure to insert rows in rcl_oms_constraint_master and rcl_oms_constraint_master_rule.
+dc_split_ratio,5,P5,derived,Size ratios Table at SKU-DC level,oms_product_profile_weeks;oms_sku_store_eligibility;oms_product_hybrid_attributes;store_dc_mapping;distribution_centres,,,This table provides Size proportions for each style-dc-week combination based on product profile.
+oms_central_table,5,P5,derived,Receipt Cycles Info Table,oms_dc_product_mapping;oms_constraints_status;oms_constraints_order_policy;oms_order_cycle;oms_fiscal_date_mapping;oms_constraints_lead_time;oms_vendor_closure;oms_constraints_safety_stock;oms_sku_hierarchy,,,"This table provides Receipt Date info, Demand Weeks Info, Effective Lead Time Info based on order placement dates."
+oms_kpi,5,P5,derived,Combined Inventory and PO Info Table,oms_latest_inventory;oms_po_master;oms_dc_product_mapping;oms_product_hybrid_attributes;oms_constraints_shipment;oms_fiscal_date_mapping;oms_pack_config;oms_supersession_mapping;oms_constraints_vendor_moq;dc_transit_time_mapping;store_dc_mapping;distribution_centres;oms_sku_hierarchy,,,"This table contains collated DC On Hand, Store On Hand Inventory details, Purchase Orders details, Pack ID attached, Safety Stock info."
+oms_late_orders_report,5,P5,derived,Late Orders Info Table,oms_product_hybrid_attributes;oms_fiscal_date_mapping;oms_po_master;oms_latest_inventory;oms_sku_hierarchy,po_master;store_master,,This table contains late orders info.
+oms_orders_approved_intermediate,5,P5,derived,Approved Orders Table,oms_po_master;oms_constraints_lead_time;oms_orders_approved;oms_sku_hierarchy,,,This table is used to track whether the approved orders has been converted to POs or not.
+oms_orders_recommended_archive,5,P5,derived,Historic Approved Orders Info,oms_po_master;oms_constraints_lead_time;oms_orders_recommended;oms_sku_hierarchy,,,All the approved orders which has been created yesterday will be appended into this table.
+oms_universal_forecast,5,P5,derived,Forecast Info Table,oms_product_profile_weeks;oms_future_sales_units;store_dc_mapping;distribution_centres;dc_transit_time_mapping,store_master,,This is the base forecast table which feed into python ingestion.
+po_rebalance_base,5,P5,derived,PO Rebalance,oms_po_master;oms_constraints_lead_time;oms_orders_approved;oms_sku_hierarchy,,,This table is required for clients who opted  for PO Rebalance Module over the tool.
+oms_delay_po_master,6,P6,derived,,,,,Table details yet to be provided.
+oms_otb,6,P6,derived,Receipt Units Info,oms_lf_master;oms_wp_master;oms_wp_master;oms_product_hybrid_attributes;oms_constraints_lead_time;oms_fiscal_date_mapping;oms_po_master;oms_supersession_mapping;dc_split_ratio;oms_sku_hierarchy,,,This table is required for clients who opted to generate recommendations based on receipt plan.
+oms_constraints_lead_time (Backsync),6,P6,backsync,Used in Periodic Query,oms_constraints_lead_time,,,
+oms_constraints_order_policy (Backsync),6,P6,backsync,Used in Periodic Query,oms_constraints_order_policy,,,
+oms_constraints_safety_stock (Backsync),6,P6,backsync,Used in Periodic Query,oms_constraints_safety_stock,,,
+oms_constraints_shipment (Backsync),6,P6,backsync,Used in Periodic Query,oms_constraints_shipment,,,
+oms_constraints_status (Backsync),6,P6,backsync,Used in Periodic Query,oms_constraints_status,,,

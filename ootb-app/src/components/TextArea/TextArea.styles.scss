@@ -1,0 +1,144 @@
+@import "../../styles/index.scss";
+
+.impact_textarea_label {
+  color: $textButtonFontColor;
+  font-size: 12px;
+  padding-bottom: 6px;
+}
+.impact_textarea {
+  margin-top: 6px;
+  textarea {
+    resize: none;
+    border: 1px solid $disabledSecondaryBorder;
+    border-radius: 8px;
+    min-width: 240px;
+    min-height: 100px;
+    padding: 12px;
+    position: relative;
+    &:hover {
+      border: 1px solid $primaryColor;
+      outline: none;
+    }
+    &:focus {
+      border: 1px solid $primaryColor;
+      outline: none;
+    }
+  }
+}
+.impact_textarea_btm_container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  .left_secondary_label_container {
+    font-size: 10px;
+    color: $grayBadge;
+  }
+  .right_numeric_container {
+    font-size: 10px;
+    color: $grayBadge;
+  }
+}
+.impact_textarea_disabled {
+  .impact_textarea_label {
+    color: $lightGrayColor;
+  }
+  textarea {
+    pointer-events: none;
+    color: $disabledSecondaryBorder;
+    background: $disabledSecondaryBg;
+  }
+  .impact_textarea_btm_container {
+    .left_secondary_label_container {
+      text-align: start;
+      color: $lightGrayColor;
+    }
+    .right_numeric_container {
+      color: $lightGrayColor;
+    }
+  }
+}
+
+.impact_textarea_error {
+  textarea {
+    color: $redText;
+    border: 1px solid $redBadge;
+  }
+}
+
+textarea {
+  font-family: "Manrope", sans-serif !important;
+}
+textarea::-webkit-input-placeholder {
+  color: $lightGrayColor;
+}
+.impact_textarea_disabled textarea::-webkit-input-placeholder {
+  color: $lightGrayColor;
+}
+.impact_textarea_error {
+  .left_secondary_label_container,
+  .right_numeric_container {
+    color: $redText;
+  }
+}
+.impact_textarea_error textarea:hover,
+.impact_textarea_error textarea:focus {
+  border: 1px solid $redBadge;
+}
+
+.impact_textarea_error textarea {
+  border: 1px solid $redBadge;
+}
+
+.impact_textarea_error textarea {
+  background: url("./../../assets/material-symbols_error.svg") no-repeat;
+  background-size: 16px;
+  background-position: top 12px right 12px;
+  padding-right: 34px;
+}
+
+.impact_textarea_success textarea {
+  background: url("./../../assets/success-icon.svg") no-repeat;
+  background-size: 16px;
+  background-position: top 12px right 12px;
+  padding-right: 34px;
+}
+.impact_textarea_success textarea:hover,
+.impact_textarea_success textarea:focus {
+  border: 1px solid $greenBadge;
+}
+.impact_textarea_success textarea {
+  border: 1px solid $greenBadge;
+}
+
+.impact_textarea_success {
+  .left_secondary_label_container,
+  .right_numeric_container {
+    color: $greenBadgeDark;
+  }
+}
+
+.impact_textarea_warning textarea {
+  background: url("./../../assets/success-icon.svg") no-repeat;
+  background-size: 16px;
+  background-position: top 12px right 12px;
+  padding-right: 34px;
+}
+.impact_textarea_warning textarea:hover,
+.impact_textarea_warning textarea:focus {
+  border: 1px solid $yellowBadge;
+}
+.impact_textarea_warning textarea {
+  border: 1px solid $yellowBadge;
+}
+.impact_textarea_warning textarea {
+  background: url("./../../assets/warning-fill.svg") no-repeat;
+  background-size: 16px;
+  background-position: top 12px right 12px;
+  padding-right: 34px;
+}
+.impact_textarea_warning {
+  .left_secondary_label_container,
+  .right_numeric_container {
+    color: $yellowBadgeDark;
+  }
+}

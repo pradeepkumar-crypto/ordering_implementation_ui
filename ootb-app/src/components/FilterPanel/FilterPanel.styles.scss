@@ -1,0 +1,236 @@
+@import "../../styles/index.scss";
+
+.impact_drawer_filter_container_medium {
+  width: 675px;
+  height: 100%;
+}
+.impact_drawer_filter_container_large {
+  width: 840px;
+  height: 100%;
+}
+.MuiBox-root {
+  width: auto;
+}
+
+.impact_drawer_filter_container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .impact_drawer_filter_header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: $whiteColor;
+    border-bottom: 1px solid #d9dde7;
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    align-items: center;
+
+    .impact_drawer_filter_left_header {
+      height: 40px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+
+      .impact_drawer_filter_left_heading_icon {
+        width: 40px;
+        height: 32px;
+        background: $whiteColor url("../../assets/filter-icon.svg") no-repeat;
+        background-size: 14px;
+        border: 1px solid #eceefd;
+        border-radius: 8px;
+        background-position: center;
+      }
+
+      .impact_drawer_filter_left_heading {
+        font-size: 18px;
+        font-weight: 700;
+        color: $mainFontColor;
+      }
+    }
+    .close_icon {
+      padding: 12px;
+      border-radius: 4px;
+      background: url("../../assets/close.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+
+      &:hover {
+        background: #eceefd url("../../assets/close.svg") no-repeat;
+        color: #3649c6;
+        background-size: 16px;
+        background-position: center;
+      }
+    }
+  }
+
+  .impact_drawer_filter_container_left_panel {
+    flex-shrink: 0;
+    width: 200px;
+    background: $textButtonPrimaryBg;
+    border-right: 1px solid $disabledSecondaryBorder;
+    padding-top: 10px;
+    height: 100%;
+
+    .impact_drawer_filter_left_filters_tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 8px;
+
+      .impact-drawer-filter-separator {
+        display: block;
+        height: 1px;
+        width: 200px;
+        background-color: #d9dde7;
+        margin-left: -8px;
+        margin-right: -8px;
+      }
+
+      .impact_drawer_filter_tab {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        align-items: center;
+        padding: 6px 8px 6px 18px;
+        &:hover {
+          cursor: pointer;
+          border-radius: 8px;
+          background-color: #eceefd;
+        }
+      }
+
+      .impact_drawer_filter_tab_icon {
+        svg {
+          display: flex;
+          color: #60697d;
+          width: 16px;
+          height: 16px;
+        }
+
+        img {
+          display: flex;
+          color: #60697d;
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .impact_drawer_filter_tab_label {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        font-size: 16px;
+        line-height: 20px;
+        color: $textButtonFontColor;
+        overflow: hidden;
+        white-space: nowrap;
+        & span {
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+        // & span {
+        //   display: block;
+        //   gap: 4px;
+        //   font-size: 16px;
+        //   line-height: 20px;
+        //   color: #60697d;
+        //   overflow: hidden;
+        //   text-overflow: ellipsis;
+        //   text-wrap: nowrap;
+        //   max-width: 120px;
+        // }
+      }
+
+      .impact_drawer_filter_tab_label-required {
+        color: $redBadge;
+      }
+
+      .impact_drawer_filter_tab_badges {
+        background-color: $whiteColor;
+        padding: 0px 8px;
+        border-radius: 8px;
+        color: $textButtonFontColor;
+        height: 18px;
+        box-sizing: border-box;
+        font-size: 12px;
+        line-height: 18px;
+        min-width: 27px;
+        text-align: center;
+      }
+
+      .filter_tab_active {
+        border-radius: 8px;
+        background-color: #eceefd;
+        .impact_drawer_filter_tab_label {
+          color: $primaryColor;
+        }
+
+        .impact_drawer_filter_tab_icon {
+          svg {
+            color: $primaryColor;
+          }
+
+          img {
+            filter: brightness(0) saturate(100%) invert(30%) sepia(100%)
+              saturate(4545%) hue-rotate(231deg) brightness(103%) contrast(87%);
+          }
+        }
+
+        .impact_drawer_filter_tab_badges {
+          color: $primaryColor;
+        }
+      }
+    }
+  }
+
+  .impact-drawer-filter-main-container {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    height: calc(100% - 40px);
+  }
+  .impact_drawer_filter_container_right_panel {
+    width: 640px;
+    .impact_drawer_filter_body {
+      z-index: 0;
+      position: relative;
+      padding: 16px;
+      overflow-y: auto;
+      height: calc(100% - 60px);
+      width: 100%;
+    }
+
+    .impact_drawer_filter_footer {
+      position: absolute;
+      bottom: 0;
+      background: white;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 56px;
+      border-top: 1px solid #d9dde7;
+      left: 200px;
+      right: 0;
+
+      .impact_drawer_filter_footer_left_container,
+      .impact_drawer_filter_footer_right_container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    .impact_drawer_filter_footer_no_buttons {
+      height: 100%;
+    }
+  }
+}

@@ -1,0 +1,115 @@
+@import "../../styles/index.scss";
+
+.impact-chip-container {
+  .MuiChip-filled {
+    min-width: 83px;
+    height: 32px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 6px 12px;
+    border: 1px solid $disabledSecondaryBorder;
+    cursor: pointer;
+    &:hover {
+      background: $lightBlueColor;
+      border-color: $secondaryColor;
+      .MuiChip-label {
+        color: $secondaryColor;
+      }
+    }
+
+    // &:focus {
+    //   background: #ffffff;
+    //   outline: 3px solid $lightBlueColor;
+    //   border: none;
+    // }
+
+    &:active {
+      background: #ffffff;
+      border-color: $primaryColor;
+    }
+
+    .MuiChip-label {
+      font-family: $fontFamily;
+      font-size: $normalFontSize;
+      font-weight: $normalFontWeight;
+      color: $textButtonFontColor;
+      line-height: 20px;
+      padding-inline: 4px;
+    }
+  }
+
+  .Mui-disabled {
+    border-color: $disabledSecondaryBorder;
+    background: $disabledSecondaryBg;
+    opacity: 1;
+
+    .MuiChip-label {
+      color: $lightGrayColor;
+    }
+  }
+
+  &.single:not(.selected) {
+    .MuiChip-filled {
+      flex-direction: row-reverse;
+      background-image: url("../../assets/radioButton.svg");
+      background-position: left 12px center;
+      background-repeat: no-repeat;
+      .MuiChip-label {
+        margin-left: 20px;
+        margin-bottom: 1px;
+      }
+      &:hover {
+        background-image: url("../../assets/radioButtonChipHover.svg");
+      }
+    }
+    .Mui-disabled {
+      background-image: url("../../assets/radioButtonChipDisable.svg");
+    }
+  }
+
+  &.single.selected {
+    .MuiChip-filled {
+      background-image: url("../../assets/radioButtonFilledChip.svg");
+      background-position: left 12px center;
+      background-repeat: no-repeat;
+      .MuiChip-label {
+        margin-left: 20px;
+        margin-bottom: 1px;
+      }
+    }
+  }
+
+  &.multi {
+    .MuiChip-filled {
+      flex-direction: row-reverse;
+      background-image: url("../../assets/checkMarkChip.svg");
+      background-position: left 12px center;
+      background-repeat: no-repeat;
+      .MuiChip-label {
+        margin-left: 16px;
+        margin-bottom: 1px;
+      }
+      &:hover {
+        background-image: url("../../assets/checkMarkChipHover.svg");
+      }
+    }
+    .Mui-disabled {
+      background-image: url("../../assets/checkMarkChipDisable.svg");
+    }
+    &.selected {
+      .MuiChip-filled {
+        background-image: url("../../assets/checkMarkChipHover.svg");
+      }
+    }
+  }
+
+  &.selected {
+    .MuiChip-filled {
+      flex-direction: row-reverse;
+      border-color: $primaryColor;
+      .MuiChip-label {
+        color: $primaryColor;
+      }
+    }
+  }
+}

@@ -1,0 +1,101 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-tabContainer {
+  font-family: $fontFamily;
+  .ia-styles.ia-tabList {
+    border: 1px solid #d9dde7;
+    border-radius: 8px;
+    background-color: #fff;
+
+    .MuiTabs-indicator {
+      background-color: $primaryColor;
+      border-radius: 4px;
+      left: 0;
+    }
+    &.MuiTabs-root {
+      min-height: 27px;
+    }
+    .ia-tab {
+      min-height: 23px;
+      padding: 7px 24px !important;
+      font-weight: 500;
+      flex-direction: row;
+    }
+    .ia-tab.MuiButtonBase-root {
+      font-family: $fontFamily;
+      color: $textButtonFontColor;
+      text-transform: capitalize;
+      font-size: $normalFontSize;
+      font-weight: 400;
+      position: relative;
+
+      svg {
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        margin-right: 8px;
+      }
+    }
+    .ia-tab.MuiButtonBase-root.Mui-selected {
+      color: $primaryColor;
+      font-weight: $BoldFontWeight;
+    }
+    .ia-tab:hover {
+      color: $secondaryColor;
+    }
+    .ia-tab.Mui-disabled {
+      color: $lightGrayColor !important;
+    }
+  }
+  .ia-tabPanel {
+    padding: 8px 0 !important;
+    font-family: $fontFamily;
+    transition: opacity 0.2s ease-in-out;
+
+    &.ia-tabPanel-hidden {
+      display: none;
+    }
+  }
+  .ia-tabPanel .MuiBox-root {
+    padding: 0px !important;
+  }
+}
+
+.ia-styles.ia-tabContainer.ia-tabs-horizontal {
+  .ia-styles.ia-tabList {
+    height: 40px;
+  }
+  .MuiTabs-flexContainer {
+    height: 38px;
+  }
+}
+
+.ia-styles.ia-tabs-vertical {
+  display: flex;
+
+  .ia-tab.MuiButtonBase-root {
+    color: $textButtonFontColor;
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: 400;
+    position: relative;
+    height: 64px;
+    justify-content: flex-end;
+    &::after {
+      display: none;
+    }
+  }
+  .MuiBox-root {
+    border-bottom: none;
+  }
+  .MuiTabs-indicator {
+    background-color: $primaryColor;
+    border-radius: 4px;
+  }
+  .ia-tabPanel {
+    padding: 0px 8px !important;
+  }
+  .ia-tab:hover {
+    color: $secondaryColor;
+  }
+}

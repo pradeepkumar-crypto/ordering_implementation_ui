@@ -1,0 +1,6 @@
+id,panel_id,icon,label,status,page_title,page_description,reserved_heading,reserved_body,badge_text
+nav-flow,page-flow,checklist,Execution Flow,active,Execution Flow,,,,
+nav-explore,page-explore,database,Table Explorer,active,Table Explorer,"Search any of the __TASK_COUNT__ tracked tables or tasks to see its full lineage — what feeds it, what it feeds, and which team owns each input.",,,
+nav-schema,page-schema,layers,Schemas,active,Schemas,"Column names, types and keys for every documented table — search by table or column, or jump in from a task's detail panel.",,,
+nav-queries,page-queries,code,Build Queries,active,Build Queries,"The query behind every derived table — pick a table, fill in its configuration, and copy the ready-to-run SQL.",,,
+nav-modulemap,page-modulemap,map,Module Mapping,soon,Module Mapping,Which tool module each table or task is used in.,Reserved for module mapping,"A cross-reference of every table against the modules in the tool that use it, so you know exactly where each one shows up.",Coming soon

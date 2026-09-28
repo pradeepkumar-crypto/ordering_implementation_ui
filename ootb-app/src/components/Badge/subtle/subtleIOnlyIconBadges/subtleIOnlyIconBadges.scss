@@ -1,0 +1,25 @@
+.MuiChip-root.impact_badges_only_icon_subtle {
+  width: 24px;
+  height: 24px;
+  max-width: 24px;
+  padding: 0px;
+  background: $grayBadge;
+  cursor: default !important;
+  &.small-badge {
+    height: 20px;
+  }
+  svg {
+    color: $whiteColor;
+    width: 14px;
+    height: 14px;
+    font-size: 14px !important;
+    margin: 0px !important;
+  }
+  span {
+    display: none;
+  }
+
+  &:hover {
+    background: $grayBadge;
+  }
+}

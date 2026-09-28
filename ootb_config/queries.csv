@@ -1,0 +1,4531 @@
+﻿table_name,step,label,query,notes
+oms_supersession_mapping,1,,"SELECT DISTINCT
+  {Child SKU Column Name} child_sku,
+  {Parent SKU Column Name} parent_sku,
+  IFNULL(start_date, '2000-01-01') AS from_date,
+  IFNULL(end_date, '2049-01-01') AS to_date
+FROM `{Project ID}.{Dataset}.{Supersession Table}`
+WHERE 
+  child_sku IS NOT NULL 
+  AND parent_sku IS NOT NULL","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_dc_product_mapping,1,,"SELECT DISTINCT
+  dc.linked_store_code AS store_code,
+  p.product_code,
+  p.article,
+  dc.linked_store_code AS dc_code
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` p
+JOIN
+  `{Project ID}.{Dataset}.product_mapping_product_dc` pd
+  USING (product_code)
+JOIN
+  `{Project ID}.{Dataset}.distribution_centres` dc
+  USING (dc_code)
+WHERE
+  dc.is_active = TRUE","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_pack_config,1,,"SELECT DISTINCT
+  article,
+  style,
+  pack_id,
+  pack_type,
+  product_code,
+  size,
+  units_in_pack,
+  pack_description,
+  color_code
+FROM {Project ID}.{Dataset}.pack_configuration_master
+JOIN {Project ID}.{Dataset}.oms_sku_hierarchy
+  USING (product_code)
+WHERE is_active = 1 AND pack_type = '{Pack Type}'","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_fiscal_date_mapping,1,,"SELECT DISTINCT
+  calendar_date,
+  fiscal_year,
+  fiscal_month,
+  fiscal_day_name AS day,
+  day_of_week,
+  fiscal_week_begin_date AS week_start_date,
+  fiscal_week_end_date AS week_end_date,
+  fiscal_year_week,
+  fiscal_week_in_month,
+  fiscal_month_in_quarter,
+  fiscal_month_name,
+  fiscal_year_month
+FROM
+  `{Project ID}.{Dataset}.fiscal_date_mapping`
+ORDER BY 
+   calendar_date","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_constraints_status,1,Historic,"SELECT
+  product_code,
+  vendor_code,
+  vendor_name,
+  'Replenishment' AS status,
+  'Yes' AS preferred_status,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  CAST(NULL AS INT64) AS id,
+  '-' AS channel,
+  '-' AS l6_name,
+  '-' AS l6_id,
+  '-' AS vendor_location --This column can be populated for clients opted for Vendor-Store feature
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy`
+WHERE {Product Filter}","Historic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values"
+oms_constraints_status,2,Periodic,"WITH base AS (
+  SELECT
+  product_code,
+  vendor_code,
+  vendor_name,
+  'Replenishment' AS status,
+  'Yes' AS preferred_status,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  CAST(NULL AS INT64) AS id,
+  '-' AS channel,
+  '-' AS l6_name,
+  '-' AS l6_id,
+  '-' AS vendor_location -- This column can be populated for clients opted for Vendor-Store feature
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy`
+WHERE {Product Filter}
+)
+SELECT
+  a.*
+FROM
+  base a
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_status` b
+USING (product_code, channel, vendor_code)
+WHERE
+  b.product_code IS NULL","Periodic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values.
+This query uses oms_constraints_status backsync table."
+oms_historical_error_calculation,1,,"WITH
+  forecast_bnm AS (
+    SELECT
+      article,
+      fiscal_year_week,
+      train_test_label,
+      sum(qty) AS total_qty,
+      sum(predicted_quantity) AS total_predicted_qty
+    FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+    WHERE channel <> '{Ecom Channel Name}'
+    GROUP BY 1, 2, 3
+  ),
+  forecast_ecom AS (
+    SELECT
+      article,
+      fiscal_year_week,
+      train_test_label,
+      sum(qty) AS total_qty,
+      sum(predicted_quantity) AS total_predicted_qty
+    FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+    WHERE channel = '{Ecom Channel Name}'
+    GROUP BY 1, 2, 3
+  ),
+  prod_master_bnm AS (
+    SELECT DISTINCT
+      article,
+      COUNT(DISTINCT product_code) AS prod_cnt
+    FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+    WHERE
+      article IN (
+        SELECT DISTINCT article
+        FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+        WHERE channel <> '{Ecom Channel Name}'
+      )
+    GROUP BY 1
+  ),
+  prod_master_ecom AS (
+    SELECT DISTINCT
+      article,
+      COUNT(DISTINCT product_code) AS prod_cnt
+    FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+    WHERE
+      article IN (
+        SELECT DISTINCT article
+        FROM `{Project ID}.{Dataset}.{ADA Historical Forecast Table}`
+        WHERE channel = '{Ecom Channel Name}'
+      )
+    GROUP BY 1
+  ),
+  prop_bnm AS (
+    SELECT
+      a.*,
+      b.prod_cnt,
+      c.product_code,
+      round(a.total_qty / b.prod_cnt) AS qty_prod_prop,
+      (a.total_predicted_qty / b.prod_cnt) AS predicted_qty_prod_prop
+    FROM forecast_bnm a
+    INNER JOIN prod_master_bnm b
+      ON a.article = b.article
+    INNER JOIN `{Project ID}.{Dataset}.oms_sku_hierarchy` c
+      ON
+        a.article = c.article
+  ),
+  prop_ecom AS (
+    SELECT
+      a.*,
+      b.prod_cnt,
+      c.product_code,
+      round(a.total_qty / b.prod_cnt) AS qty_prod_prop,
+      (a.total_predicted_qty / b.prod_cnt) AS predicted_qty_prod_prop
+    FROM forecast_ecom a
+    INNER JOIN prod_master_ecom b
+      ON a.article = b.article
+    INNER JOIN `{Project ID}.{Dataset}.oms_sku_hierarchy` c
+      ON
+        a.article = c.article
+  ),
+  final AS (
+    SELECT
+      product_code,
+      fiscal_year_week,
+      qty_prod_prop AS quantity,
+      predicted_qty_prod_prop AS predicted_qty,
+    FROM prop_bnm
+    UNION ALL
+    SELECT
+      product_code,
+      fiscal_year_week,
+      qty_prod_prop AS quantity,
+      predicted_qty_prod_prop AS predicted_qty,
+    FROM prop_ecom
+  )
+SELECT
+  product_code,
+  fiscal_year_week,
+  SUM(quantity) AS quantity,
+  SUM(predicted_qty) AS predicted_qty
+FROM final
+GROUP BY 1, 2
+ORDER BY product_code, fiscal_year_week;","Historic and Periodic versions are same. 
+This is a full replace table."
+article_status_tag,1,,This table will be created by AnR team. Not required separately for Ordering.,This table will be created by AnR team
+budget_product_hierarchy,1,,"SELECT
+  ROW_NUMBER()
+    OVER (
+      ORDER BY
+        CASE hierarchy_level
+          WHEN 'L0' THEN 0
+          WHEN 'L1' THEN 1
+          WHEN 'L2' THEN 2
+          WHEN 'L3' THEN 3
+          END,
+        l0_name,
+        l1_name,
+        l2_name,
+        l3_name
+    ) AS hierarchy_id,
+  hierarchy_level,
+  l0_name,
+  l1_name,
+  l2_name,
+  l3_name,
+  CAST(NULL AS STRING) AS style_id,
+  CAST(NULL AS STRING) AS style_desc,
+  CAST(NULL AS STRING) AS clearance,
+  CAST(NULL AS STRING) AS product_code,
+  CAST(NULL AS STRING) AS product_description,
+  CAST(NULL AS STRING) AS price,
+  CAST(NULL AS STRING) AS cost,
+  CAST(NULL AS STRING) AS active,
+  CAST(NULL AS STRING) AS item_status,
+  CAST(NULL AS STRING) AS size,
+  CAST(NULL AS STRING) AS product_type,
+  CAST(NULL AS STRING) AS launch_date,
+  CAST(NULL AS STRING) AS rcl_hash,
+  CAST(NULL AS STRING) AS ordering,
+  CAST(NULL AS STRING) AS replenishment_status,
+  CAST(NULL AS STRING) AS product_image_link,
+  CAST(NULL AS STRING) AS is_deleted,
+  CAST(NULL AS STRING) AS clearance_start_date,
+  CAST(NULL AS STRING) AS primary_vendor_id,
+  CAST(NULL AS STRING) AS primary_vendor_name,
+  CAST(NULL AS STRING) AS vendor,
+  CAST(NULL AS STRING) AS vendor_case_pack,
+  CAST(NULL AS STRING) AS drop_ship_flag,
+  CAST(NULL AS STRING) AS product_channel,
+  CAST(NULL AS STRING) AS product_attribute_3,
+  CAST(NULL AS STRING) AS product_attribute_1,
+  CAST(NULL AS STRING) AS product_attribute_2,
+  CAST(NULL AS TIMESTAMP) AS created_at,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS product_name,
+  CAST(NULL AS STRING) AS replacement_product_codes,
+  CAST(NULL AS STRING) AS reference_product_codes,
+  CAST(NULL AS STRING) AS ia_sku_type,
+  CAST(NULL AS STRING) AS receipt_date,
+  CAST(NULL AS STRING) AS created_by,
+  CAST(NULL AS STRING) AS updated_by,
+  CAST(NULL AS STRING) AS color,
+  CAST(NULL AS STRING) AS original_price,
+  CAST(NULL AS STRING) AS product_bucket_code,
+  CAST(NULL AS STRING) AS article,
+  CAST(NULL AS STRING) AS channel,
+  CAST(NULL AS INT64) AS loc_code, -- You can populate this column if DC level budget is provided
+  CAST(NULL AS STRING) AS product_attribute_4,
+  CAST(NULL AS STRING) AS product_attribute_5,
+  CAST(NULL AS STRING) AS color_id,
+  CAST(NULL AS INT64) AS budget_value
+FROM
+  (
+    SELECT DISTINCT
+      'L0' AS hierarchy_level,
+      l0_name,
+      CAST(NULL AS STRING) AS l1_name,
+      CAST(NULL AS STRING) AS l2_name,
+      CAST(NULL AS STRING) AS l3_name
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+    WHERE l0_name IS NOT NULL
+    UNION ALL
+    SELECT DISTINCT
+      'L1',
+      l0_name,
+      l1_name,
+      CAST(NULL AS STRING),
+      CAST(NULL AS STRING)
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+    WHERE
+      l0_name IS NOT NULL
+      AND l1_name IS NOT NULL
+    UNION ALL
+    SELECT DISTINCT
+      'L2',
+      l0_name,
+      l1_name,
+      l2_name,
+      CAST(NULL AS STRING)
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+    WHERE
+      l0_name IS NOT NULL
+      AND l1_name IS NOT NULL
+      AND l2_name IS NOT NULL
+    UNION ALL
+    SELECT DISTINCT
+      'L3',
+      l0_name,
+      l1_name,
+      l2_name,
+      l3_name
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+    WHERE
+      l0_name IS NOT NULL
+      AND l1_name IS NOT NULL
+      AND l2_name IS NOT NULL
+      AND l3_name IS NOT NULL
+  );","Historic and Periodic versions are same. 
+This is a full replace table.
+In query, the hierarchy columns are kep till l3_name but in case your client provides data in more hierarchy levels, you can add those columns in the schema and the query."
+hierarchy_rankings,1,,"WITH
+  fixed_ranks AS (
+    SELECT 'l0_name' AS hier_level, 1 AS ranking
+    UNION ALL
+    SELECT 'l0_id', 1
+    UNION ALL
+    SELECT 'l1_name', 2
+    UNION ALL
+    SELECT 'l1_id', 2
+    UNION ALL
+    SELECT 'l2_name', 3
+    UNION ALL
+    SELECT 'l2_id', 3
+    UNION ALL
+    SELECT 'l3_name', 4
+    UNION ALL
+    SELECT 'l3_id', 4
+  ),
+  other_paf_cols AS (
+    SELECT
+      column_name AS hier_level,
+      5 + ROW_NUMBER() OVER (ORDER BY column_name) AS ranking
+    FROM `{Project ID}.{Dataset}`.INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      table_name = 'product_master'
+      AND LOWER(column_name)
+        NOT IN (
+          'l0_name', 'l0_id', 'l1_name', 'l1_id', 'l2_name', 'l2_id', 'l3_name', 'l3_id')
+  )
+SELECT * FROM fixed_ranks
+UNION ALL
+SELECT * FROM other_paf_cols;","Historic and Periodic versions are same. 
+This is a full replace table.
+In query, the hierarchy columns are kep till l3_name but in case your client provides data in more hierarchy levels, you can add those columns in the schema and the query."
+oms_orders_approved_intermediate,1,,"WITH
+  po_info AS (
+    SELECT
+      product_code,
+      channel,
+      loc_code,
+      po_id,
+      CONCAT(style, '_', size, '_', po_id)
+        AS reconciliation_id,  -- Can be Client Specific But should align with the logic for reconciliation_id, Some might use Style in Concat
+      projected_delivery_date,
+      0 AS quantity_ordered,  -- If you dont have this Column , use 0 as for phase 1, Column not being used anywhere
+      oo,
+      it
+    FROM
+      `{Project ID}.{Dataset}.oms_po_master`
+    JOIN
+      (
+        SELECT DISTINCT
+          product_code,
+          l0_name,
+          l1_name,
+          l2_name,
+          l3_name,
+          l4_name,
+          l5_name,
+          style,
+          size
+        FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+      ) pm  -- Map your hierarchy to the column names required as per your clients
+      USING (product_code)
+  ),
+  order_to_po AS (
+    SELECT
+      product_code,
+      channel,
+      loc_code,
+      po_to_order_processing
+    FROM
+      `{Project ID}.{Dataset}.oms_constraints_lead_time` olt
+    JOIN
+      (
+        SELECT DISTINCT
+          product_code,
+          l0_name,
+          l1_name,
+          l2_name,
+          l3_name,
+          l4_name,
+          l5_name,
+          style,
+          size,
+          article
+        FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+      ) pm  -- Map your hierarchy to the column names required as per your clients
+      USING (article)
+  ),
+  reconciliation_po AS (
+    SELECT
+      product_code,
+      reconciliation_id,
+      loc_code,
+      quantity_ordered,
+      po_to_order_processing,
+      DATE_DIFF(CURRENT_DATE(), order_placement_date, DAY) AS diff,
+      CASE
+        WHEN oo + it >= order_quantity THEN 'FULL'
+        WHEN oo + it < order_quantity THEN 'PARTIAL'
+        ELSE 'NONE'
+        END
+        AS reconciliation_status
+    FROM
+      `{Project ID}.{Dataset}.oms_orders_approved` ooa
+    LEFT JOIN
+      po_info
+      USING (product_code, loc_code, reconciliation_id)
+    LEFT JOIN
+      order_to_po
+      USING (product_code, loc_code)
+  ),
+  required_po AS (
+    SELECT
+      *
+    FROM
+      reconciliation_po
+    WHERE
+      (reconciliation_status = 'FULL')
+      OR (reconciliation_status = 'PARTIAL' AND diff > po_to_order_processing)
+      OR (reconciliation_status = 'NONE' AND diff > po_to_order_processing)
+  )
+SELECT
+  ooa.product_code,
+  l0_name,
+  pm.l1_name,
+  pm.l2_name,
+  pm.l3_name,
+  pm.l4_name,
+  l5_name,
+  style,
+  pm.article,
+  pm.size,
+  vendor_code,
+  oo,
+  it,
+  projected_delivery_date,
+  order_quantity,
+  po_id,
+  po_to_order_processing,
+  order_placement_date,
+  order_placement_recom_date,
+  editable_expected_receipt_date,
+  order_batch_name,
+  order_gen_type,
+  reconciliation_status,
+  created_at,
+  created_by,
+  diff AS days_since_approved,
+  current_timestamp AS deleted_at
+FROM
+  `{Project ID}.{Dataset}.oms_orders_approved` ooa
+JOIN
+  required_po rp
+  USING (product_code, loc_code, reconciliation_id)
+JOIN
+  (
+    SELECT DISTINCT
+      product_code,
+      l0_name,
+      l1_name,
+      l2_name,
+      l3_name,
+      l4_name,
+      l5_name,
+      style,
+      size,
+      article
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+  ) pm  -- Map your hierarchy to the column names required as per your clients
+  USING (product_code)
+LEFT JOIN
+  po_info po
+  USING (product_code, loc_code, reconciliation_id)","Historic and Periodic versions are same. 
+This is an append table."
+oms_product_hybrid_attributes,1,,"SELECT
+  product_code,
+  CASE
+    WHEN status = 'Replenishment' THEN 'Y'
+    ELSE 'N'
+    END
+    AS ordering,
+  COALESCE(status, 'Inactive') AS replenishment_status
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy`
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_status` oct
+  USING (product_code)","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_future_sales_units,1,ADA Visual Version,"WITH
+  forecast AS (
+    SELECT
+      article,
+      fiscal_year_week,
+      channel,
+      SUM(predicted_qty) AS future_sales_units
+    FROM
+      `{Project ID}.{Dataset}.ada_visual_predictions_updated`
+    WHERE
+      adjusted_discount_flag IS TRUE
+      AND fiscal_year_week > 0
+    GROUP BY
+      1,
+      2,
+      3
+  )
+SELECT
+  article,
+  channel,
+  style,
+  '-' AS store_code,
+  '-' AS loc_code,
+  fiscal_year_week,
+  future_sales_units
+FROM
+  forecast
+JOIN
+  (
+    SELECT DISTINCT style, article
+    FROM `{Project ID}.{Dataset}.oms_sku_hierarchy`
+  )
+  USING (article)","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_future_sales_units,2,Item Smart Version,Query will be coming soon,
+oms_event_weeks,1,,"SELECT DISTINCT
+  fiscal_year_week,
+  IF(
+    GREATEST(
+      AllSaintsDay,
+      AscensionDay,
+      AssumptionDay,
+      BoxingDay,
+      CZ_FreedomDay,
+      CZ_IndependenceDay,
+      CZ_LiberationDay,
+      CZ_StateDay,
+      CZ_StatehoodDay,
+      CZ_CyrilMethodius,
+      CZ_JanHusDay,
+      Carnival,
+      ChristmasEve,
+      Christmas,
+      ColumbusDay,
+      CorpusChristi,
+      DE_UnityDay,
+      ES_ConstitutionDay,
+      ES_SanJuan,
+      ES_SantiagoApostol,
+      EU_DaylightSavingEnd,
+      EU_DaylightSavingStart,
+      EasterMonday,
+      GoodFriday,
+      Epiphany,
+      IT_LiberationDay,
+      IT_NationalDay,
+      ImmaculateConceptionDay,
+      MayDay,
+      MothersDay,
+      NL_LiberationDay,
+      NL_QueenDay,
+      NL_RememberDeadDay,
+      NewYear,
+      PT_FreedomDay,
+      PT_IndependenceDay,
+      PT_NationalDay,
+      PT_RepublicDay,
+      US_DaylightSavingEnd,
+      US_DaylightSavingStart,
+      US_Thanksgiving,
+      Valentine,
+      WhitMonday,
+      PL_ConstitutionDay,
+      PL_IndependenceDay,
+      HR_StatehoodDay,
+      HR_AntifascistDay,
+      HR_HomelandThanksgiving,
+      HR_RemembranceDay,
+      HU_NationalDay1848,
+      HU_StStephensDay,
+      HU_Revolution1956,
+      SI_PreserenDay,
+      SI_UprisingDay,
+      SI_StatehoodDay,
+      SI_ReformationDay,
+      SI_IndependenceUnityDay,
+      RO_UnionDay,
+      RO_ChildrensDay,
+      RO_StAndrew,
+      RO_NationalDay,
+      AT_NationalDay,
+      BG_LiberationDay,
+      BG_StGeorgesDay,
+      BG_CultureDay,
+      BG_UnificationDay,
+      BG_IndependenceDay,
+      SK_RepublicDay,
+      SK_VictoryDay,
+      SK_CyrilMethodius,
+      SK_NationalUprising,
+      SK_ConstitutionDay,
+      SK_LadyOfSorrows,
+      SK_FreedomDemocracyDay,
+      BlackFriday,
+      CyberMonday)  -- Client Specific Events Should Be Mentioned here
+      = 1,
+    1,
+    0) AS is_event
+FROM `{Project ID}.{Dataset}.{Events Table}` a
+JOIN `{Project ID}.{Dataset}.oms_fiscal_date_mapping` c
+  ON a.date = c.calendar_date
+ORDER BY fiscal_year_week;","Historic and Periodic versions are same. 
+This is a full replace table."
+budget_time_periods,1,,"WITH
+  week_periods AS (
+    SELECT DISTINCT
+      CAST(fiscal_year_week AS STRING) AS time_period_key,
+      'WEEK' AS time_period_type,
+      fiscal_year,
+      fiscal_week AS fiscal_period,
+      fiscal_week_begin_date AS period_start_date,
+      fiscal_week_end_date AS period_end_date,
+      CAST(fiscal_year_month AS STRING) AS parent_time_period_key,
+      'MONTH' AS parent_time_period_type
+    FROM `{Project ID}.{Dataset}.fiscal_date_mapping`
+    WHERE fiscal_year_week IS NOT NULL
+  ),
+  month_periods AS (
+    SELECT DISTINCT
+      CAST(fiscal_year_month AS STRING) AS time_period_key,
+      'MONTH' AS time_period_type,
+      fiscal_year,
+      fiscal_month AS fiscal_period,
+      fiscal_month_begin_date AS period_start_date,
+      fiscal_month_end_date AS period_end_date,
+      CAST(fiscal_year_quarter AS STRING) AS parent_time_period_key,
+      'QUARTER' AS parent_time_period_type
+    FROM `{Project ID}.{Dataset}.fiscal_date_mapping`
+    WHERE fiscal_year_month IS NOT NULL
+  ),
+  quarter_periods AS (
+    SELECT DISTINCT
+      CAST(fiscal_year_quarter AS STRING) AS time_period_key,
+      'QUARTER' AS time_period_type,
+      fiscal_year,
+      fiscal_quarter AS fiscal_period,
+      fiscal_quarter_begin_date AS period_start_date,
+      fiscal_quarter_end_date AS period_end_date,
+      CONCAT(
+        CAST(fiscal_year AS STRING),
+        CASE WHEN fiscal_quarter IN (1, 2) THEN 'H1' ELSE 'H2' END)
+        AS parent_time_period_key,
+      'HALF-YEAR' AS parent_time_period_type
+    FROM `{Project ID}.{Dataset}.fiscal_date_mapping`
+    WHERE fiscal_year_quarter IS NOT NULL
+  ),
+  half_year_periods AS (
+    SELECT DISTINCT
+      CONCAT(
+        CAST(fiscal_year AS STRING),
+        CASE WHEN fiscal_quarter IN (1, 2) THEN 'H1' ELSE 'H2' END)
+        AS time_period_key,
+      'HALF-YEAR' AS time_period_type,
+      fiscal_year,
+      CASE WHEN fiscal_quarter IN (1, 2) THEN 1 ELSE 2 END AS fiscal_period,
+      MIN(fiscal_quarter_begin_date)
+        OVER (
+          PARTITION BY
+            fiscal_year, CASE WHEN fiscal_quarter IN (1, 2) THEN 1 ELSE 2 END
+        ) AS period_start_date,
+      MAX(fiscal_quarter_end_date)
+        OVER (
+          PARTITION BY
+            fiscal_year, CASE WHEN fiscal_quarter IN (1, 2) THEN 1 ELSE 2 END
+        ) AS period_end_date,
+      CAST(fiscal_year AS STRING) AS parent_time_period_key,
+      'YEAR' AS parent_time_period_type
+    FROM `{Project ID}.{Dataset}.fiscal_date_mapping`
+    WHERE fiscal_year IS NOT NULL
+  ),
+  year_periods AS (
+    SELECT DISTINCT
+      CAST(fiscal_year AS STRING) AS time_period_key,
+      'YEAR' AS time_period_type,
+      fiscal_year,
+      CAST(NULL AS INT64) AS fiscal_period,
+      fiscal_year_begin_date AS period_start_date,
+      fiscal_year_end_date AS period_end_date,
+      CAST(NULL AS STRING) AS parent_time_period_key,
+      CAST(NULL AS STRING) AS parent_time_period_type
+    FROM `{Project ID}.{Dataset}.fiscal_date_mapping`
+    WHERE fiscal_year IS NOT NULL
+  ),
+  all_periods AS (
+    SELECT * FROM week_periods
+    UNION DISTINCT
+    SELECT * FROM month_periods
+    UNION DISTINCT
+    SELECT * FROM quarter_periods
+    UNION DISTINCT
+    SELECT * FROM half_year_periods
+    UNION DISTINCT
+    SELECT * FROM year_periods
+  ),
+  numbered AS (
+    SELECT
+      ROW_NUMBER()
+        OVER (
+          ORDER BY
+            fiscal_year,
+            CASE time_period_type
+              WHEN 'YEAR' THEN 1
+              WHEN 'HALF-YEAR' THEN 2
+              WHEN 'QUARTER' THEN 3
+              WHEN 'MONTH' THEN 4
+              WHEN 'WEEK' THEN 5
+              END,
+            fiscal_period,
+            period_start_date
+        ) AS time_period_id,
+      time_period_key,
+      time_period_type,
+      fiscal_year,
+      fiscal_period,
+      period_start_date,
+      period_end_date,
+      parent_time_period_key,
+      parent_time_period_type,
+      TRUE AS is_active,
+      CURRENT_TIMESTAMP() AS created_at
+    FROM all_periods
+  )
+SELECT
+  child.time_period_id,
+  child.time_period_key,
+  child.time_period_type,
+  child.fiscal_year,
+  child.fiscal_period,
+  child.period_start_date,
+  child.period_end_date,
+  parent.time_period_id AS parent_time_period_id,
+  child.is_active,
+  child.created_at
+FROM numbered child
+LEFT JOIN numbered parent
+  ON
+    child.parent_time_period_key = parent.time_period_key
+    AND child.parent_time_period_type = parent.time_period_type;","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_constraints_order_policy,1,Historic,"SELECT DISTINCT
+  pm.article,
+  pm.vendor_code,
+  pm.vendor_name,
+  '{Default Replenishment Strategy}' AS replenishment_strategy,
+  '{Default Scheduler}' AS scheduler,
+  '{Default Order Strategy}' AS order_strategy,
+  '-' AS shipment_frequency,
+  CAST(NULL AS INT64) AS shipment_scheduler,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  CAST(NULL AS INT64) AS id,
+  '-' AS channel,
+  CAST(NULL AS BOOL) AS auto_approve, -- This column can be populated for clients opted for Auto Approve feature
+  '-' AS new_hier,
+  '-' AS vendor_location -- This column can be populated for clients opted for Vendor-Store feature
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  pha.ordering = 'Y'","Historic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values"
+oms_constraints_order_policy,2,Periodic,"WITH
+  base AS (
+    SELECT DISTINCT
+      pm.article,
+      pm.vendor_code,
+      pm.vendor_name,
+      '{Default Replenishment Strategy}' AS replenishment_strategy,
+      '{Default Scheduler}' AS scheduler,
+      '{Default Order Strategy}' AS order_strategy,
+      '-' AS shipment_frequency,
+      CAST(NULL AS INT64) AS shipment_scheduler,
+      CAST(112 AS INT64) AS created_by,
+      CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+      CAST(NULL AS INT64) AS updated_by,
+      CAST(NULL AS TIMESTAMP) AS updated_at,
+      CAST(NULL AS STRING) AS column_updated,
+      CAST(NULL AS INT64) AS id,
+      '-' AS channel,
+      CAST(NULL AS BOOL) AS auto_approve,  -- This column can be populated for clients opted for Auto Approve feature
+      '-' AS new_hier,
+      '-' AS vendor_location -- This column can be populated for clients opted for Vendor-Store feature
+    FROM
+      `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+    JOIN
+      `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+      USING (product_code)
+    WHERE
+      pha.ordering = 'Y'
+  )
+SELECT
+  a.*
+FROM
+  base a
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_order_policy` b
+  USING (article, channel, vendor_code)
+WHERE
+  b.article IS NULL","Periodic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values.
+This query uses oms_constraints_order_policy backsync table."
+oms_store_constraints_master_1,1,,"WITH
+  parsed_data AS (
+    SELECT
+      rule_code,
+      psa_code,
+      fiscal_year_week,
+      min_stock,
+      max_stock,
+      wos,
+      priority,
+      REPLACE(product_code, '\""', '') AS product_code,
+      TRIM(store) AS store_code
+    FROM
+      (
+        SELECT
+          rule_code,
+          psa_code,
+          fiscal_year_week,
+          min_stock,
+          max_stock,
+          wos,
+          priority,
+          JSON_EXTRACT_ARRAY(
+            REPLACE(REPLACE(product_codes, '{', '['), '}', ']')) AS pc_array,
+          SPLIT(REPLACE(REPLACE(store_codes, '{', ''), '}', ''), ',')
+            AS store_array
+        FROM `{Project ID}.{Dataset}.rcl_week_level_constraint_data`
+        WHERE
+          fiscal_year_week <= (
+            SELECT MAX(fiscal_year_week)
+            FROM
+              (
+                SELECT DISTINCT fiscal_year_week
+                FROM
+                  `{Project ID}.{Dataset}.rcl_week_level_constraint_data`
+                ORDER BY fiscal_year_week
+                LIMIT 52
+              )
+          )
+      ),
+      UNNEST(pc_array) AS product_code,
+      UNNEST(store_array) AS store
+  ),
+  min_priority AS (
+    SELECT product_code, store_code, fiscal_year_week, MIN(priority) AS priority
+    FROM parsed_data p
+    WHERE
+      EXISTS(
+        SELECT 1
+        FROM `{Project ID}.{Dataset}.oms_product_hybrid_attributes` h
+        WHERE p.product_code = h.product_code AND h.ordering = 'Y'
+      )
+    GROUP BY product_code, store_code, fiscal_year_week
+  )
+SELECT p.*
+FROM parsed_data p
+WHERE
+  EXISTS(
+    SELECT 1
+    FROM min_priority mp
+    WHERE
+      p.product_code = mp.product_code
+      AND p.store_code = mp.store_code
+      AND p.fiscal_year_week = mp.fiscal_year_week
+      AND p.priority = mp.priority
+  );","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_store_constraints_master_2,1,,"WITH
+  parsed_data AS (
+    SELECT
+      rule_code,
+      psa_code,
+      fiscal_year_week,
+      min_stock,
+      max_stock,
+      wos,
+      priority,
+      REPLACE(product_code, '\""', '') AS product_code,
+      TRIM(store) AS store_code
+    FROM
+      (
+        SELECT
+          rule_code,
+          psa_code,
+          fiscal_year_week,
+          min_stock,
+          max_stock,
+          wos,
+          priority,
+          JSON_EXTRACT_ARRAY(
+            REPLACE(REPLACE(product_codes, '{', '['), '}', ']')) AS pc_array,
+          SPLIT(REPLACE(REPLACE(store_codes, '{', ''), '}', ''), ',')
+            AS store_array
+        FROM `{Project ID}.{Dataset}.rcl_week_level_constraint_data`
+        WHERE
+          fiscal_year_week > (
+            SELECT MAX(fiscal_year_week)
+            FROM
+              (
+                SELECT DISTINCT fiscal_year_week
+                FROM
+                  `{Project ID}.{Dataset}.rcl_week_level_constraint_data`
+                ORDER BY fiscal_year_week
+                LIMIT 52
+              )
+          )
+      ),
+      UNNEST(pc_array) AS product_code,
+      UNNEST(store_array) AS store
+  ),
+  min_priority AS (
+    SELECT product_code, store_code, fiscal_year_week, MIN(priority) AS priority
+    FROM parsed_data p
+    WHERE
+      EXISTS(
+        SELECT 1
+        FROM `{Project ID}.{Dataset}.oms_product_hybrid_attributes` h
+        WHERE p.product_code = h.product_code AND h.ordering = 'Y'
+      )
+    GROUP BY product_code, store_code, fiscal_year_week
+  )
+SELECT p.*
+FROM parsed_data p
+WHERE
+  EXISTS(
+    SELECT 1
+    FROM min_priority mp
+    WHERE
+      p.product_code = mp.product_code
+      AND p.store_code = mp.store_code
+      AND p.fiscal_year_week = mp.fiscal_year_week
+      AND p.priority = mp.priority
+  );","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_latest_inventory,1,,"SELECT
+  i.product_code,
+  CASE
+    WHEN s.special_classification = 'WHS' THEN store_code
+    ELSE '-'
+    END AS loc_code,
+  CASE
+    WHEN s.special_classification = 'Store' THEN store_code
+    ELSE '-'
+    END AS store_code,
+  '-' AS channel,
+  i.date,
+  CASE
+    WHEN s.special_classification = 'WHS' THEN 'loc'
+    ELSE 'store'
+    END AS store_type,
+  CASE
+    WHEN s.special_classification = 'WHS'
+      THEN IFNULL(i.oh, 0)
+    ELSE
+      IFNULL(i.oh, 0) + IFNULL(i.it, 0) + IFNULL(i.oo, 0)
+    END AS total_inv
+FROM `{Project ID}.{Dataset}.oms_inventory_master` i
+JOIN `{Project ID}.{Dataset}.store_master` s
+  USING (store_code)
+JOIN `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  i.date = (
+    SELECT MAX(date)
+    FROM `{Project ID}.{Dataset}.oms_inventory_master`
+  )
+  AND UPPER(s.special_classification) IN ('WHS', 'STORE')
+  AND pha.ordering = 'Y';","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_kpi,1,,"WITH
+  cte1 AS (
+    SELECT
+      product_code,
+      CAST(COALESCE(ROUND(AVG(min_replenishment_quantity), 0), NULL) AS int)
+        AS min_order_quantity_sku,
+      CAST(COALESCE(ROUND(AVG(max_replenishment_quantity), 0), NULL) AS int)
+        AS max_order_quantity_sku
+    FROM
+      `{Project ID}.{Dataset}.oms_constraints_vendor_moq`
+    JOIN
+      `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+      USING (product_code)
+    WHERE
+      level_of_application = 'applicable_all'
+    GROUP BY
+      1
+  ),
+  cte2 AS (
+    SELECT
+      product_code,
+      CAST(COALESCE(ROUND(AVG(min_replenishment_quantity), 0), NULL) AS int)
+        AS min_order_quantity_style,
+      CAST(COALESCE(ROUND(AVG(max_replenishment_quantity), 0), NULL) AS int)
+        AS max_order_quantity_style
+    FROM
+      `{Project ID}.{Dataset}.oms_constraints_vendor_moq`
+    WHERE
+      JSON_VALUE(rcl_dimension, '$.article') IS NOT NULL
+      AND level_of_application = 'sum_all'
+    GROUP BY
+      1
+  ),
+  final AS (
+    WITH
+      store_oh_inv AS (
+        SELECT
+          COALESCE(sm.parent_sku, li.product_code) AS product_code,
+          linked_store_code AS loc_code,
+          SUM(GREATEST(total_inv, 0)) AS store_inv
+        FROM
+          `{Project ID}.{Dataset}.oms_latest_inventory` li
+        JOIN
+          `{Project ID}.{Dataset}.store_dc_mapping` sdm
+          USING (store_code)
+        JOIN
+          `{Project ID}.{Dataset}.distribution_centres` dc
+          USING (dc_code)
+        JOIN
+          `{Project ID}.{Dataset}.dc_transit_time_mapping` dtt
+          USING (mapping_code)
+        LEFT JOIN
+          `{Project ID}.{Dataset}.oms_supersession_mapping` sm
+          ON
+            sm.child_sku = li.product_code
+            AND CURRENT_DATE() BETWEEN from_date AND to_date
+        WHERE
+          store_type = 'store'
+          AND sdm.is_active = TRUE
+          AND dtt.priority = 1
+        GROUP BY
+          1,
+          2
+      ),
+      dc_oh_inv AS (
+        SELECT
+          COALESCE(sm.parent_sku, li.product_code) AS product_code,
+          loc_code,
+          SUM(GREATEST(total_inv, 0)) AS dc_inv
+        FROM
+          `{Project ID}.{Dataset}.oms_latest_inventory` li
+        LEFT JOIN
+          `{Project ID}.{Dataset}.oms_supersession_mapping` sm
+          ON
+            sm.child_sku = li.product_code
+            AND CURRENT_DATE() BETWEEN from_date AND to_date
+        WHERE
+          store_type = 'loc'
+        GROUP BY
+          1,
+          2
+      ),
+      open_receipts AS (
+        SELECT
+          COALESCE(sm.parent_sku, pm.product_code) AS product_code,
+          loc_code,
+          SUM(GREATEST(0, oo + it + IFNULL(pseudo_po, 0))) AS open_receipt_units
+        FROM
+          `{Project ID}.{Dataset}.oms_po_master` pm
+        LEFT JOIN
+          `{Project ID}.{Dataset}.oms_supersession_mapping` sm
+          ON
+            sm.child_sku = pm.product_code
+            AND CURRENT_DATE() BETWEEN from_date AND to_date
+        GROUP BY
+          1,
+          2
+      )
+    SELECT DISTINCT
+      pm.product_code,
+      pm.loc_code,
+      pm.channel,
+      pm.vendor_code,
+      pm.vendor_name,
+      CAST(COALESCE(store_inv, 0) AS INT64) AS store_inv,
+      CAST(COALESCE(dc_inv, 0) AS INT64) AS dc_inv,
+      CAST((COALESCE(store_inv, 0) + COALESCE(dc_inv, 0)) AS INT64)
+        AS system_inv,
+      CAST(NULL AS FLOAT64) AS mrpc,
+      CAST(COALESCE(open_receipt_units, 0) AS INT64) AS open_receipt_units,
+      0 AS safety_stock,
+      112 AS created_by,
+      CURRENT_TIMESTAMP() AS created_at,
+      CAST(NULL AS INT64) AS updated_by,
+      CAST(NULL AS TIMESTAMP) AS updated_at,
+      CAST(NULL AS STRING) AS column_updated,
+      CAST(NULL AS INT64) AS effective_lead_time,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_4w,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_4w_lc,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_8w,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_8w_lc,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_12w,
+      CAST(NULL AS FLOAT64) AS adjusted_forecast_qty_12w_lc,
+      CAST(NULL AS INT64) AS wos,
+      CAST(NULL AS FLOAT64) AS target_service_level,
+      CAST(NULL AS FLOAT64) AS ss_base,
+      CAST(NULL AS FLOAT64) AS safety_stock_sl,
+      1 AS order_multiple,
+      COALESCE(min_order_quantity_style, NULL) AS min_order_quantity_style,
+      COALESCE(max_order_quantity_style, NULL) AS max_order_quantity_style,
+      COALESCE(min_order_quantity_sku, NULL) AS min_order_quantity_sku,
+      COALESCE(max_order_quantity_sku, NULL) AS max_order_quantity_sku,
+      min_replenishment_quantity AS min_order_quantity_shipment,
+      max_replenishment_quantity AS max_order_quantity_shipment,
+      fm.fiscal_year_week AS year_week
+    FROM
+      (
+        SELECT
+          product_code,
+          store_code AS loc_code,
+          vendor_code,
+          vendor_name,
+          '-' AS channel,
+          a.min_order_quantity_sku,
+          a.max_order_quantity_sku,
+          b.min_order_quantity_style,
+          b.max_order_quantity_style
+        FROM
+          `{Project ID}.{Dataset}.oms_sku_hierarchy`
+        JOIN {Project ID}.{Dataset}.oms_dc_product_mapping
+          USING (product_code)
+        JOIN
+          `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+          USING (product_code)
+        LEFT JOIN
+          cte1 a
+          USING (product_code)
+        LEFT JOIN
+          cte2 b
+          USING (product_code)
+        WHERE
+          pha.ordering = 'Y'
+      ) pm
+    LEFT JOIN
+      store_oh_inv s
+      ON
+        pm.product_code = s.product_code
+        AND pm.loc_code = s.loc_code
+    LEFT JOIN
+      dc_oh_inv l
+      ON
+        pm.product_code = l.product_code
+        AND pm.loc_code = l.loc_code
+    LEFT JOIN
+      open_receipts o
+      ON
+        pm.product_code = o.product_code
+        AND pm.loc_code = o.loc_code
+    LEFT JOIN
+      `{Project ID}.{Dataset}.oms_constraints_shipment` ocs
+      ON
+        pm.product_code = ocs.product_code
+        AND pm.loc_code = ocs.loc_code
+    JOIN
+      `{Project ID}.{Dataset}.oms_fiscal_date_mapping` fm
+      ON
+        fm.calendar_date = CURRENT_DATE()
+  )
+SELECT
+  f.product_code,
+  f.loc_code,
+  f.channel,
+  f.vendor_code,
+  f.vendor_name,
+  f.store_inv,
+  f.dc_inv,
+  f.system_inv,
+  f.mrpc,
+  f.open_receipt_units,
+  f.safety_stock,
+  f.created_by,
+  f.created_at,
+  f.updated_by,
+  f.updated_at,
+  f.column_updated,
+  f.effective_lead_time,
+  f.adjusted_forecast_qty_4w,
+  f.adjusted_forecast_qty_4w_lc,
+  f.adjusted_forecast_qty_8w,
+  f.adjusted_forecast_qty_8w_lc,
+  f.adjusted_forecast_qty_12w,
+  f.adjusted_forecast_qty_12w_lc,
+  f.wos,
+  f.target_service_level,
+  f.ss_base,
+  f.min_order_quantity_style,
+  f.max_order_quantity_style,
+  f.min_order_quantity_sku,
+  f.max_order_quantity_sku,
+  f.min_order_quantity_shipment,
+  f.max_order_quantity_shipment,
+  f.order_multiple,
+  f.year_week,
+  COALESCE(pc.pack_id, '-') AS pack_id,
+  CASE
+    WHEN COALESCE(pc.pack_id, '-') = '-' THEN p.size
+    ELSE '-'
+    END
+    AS size,
+  ROUND(p.cost, 2) AS cost,
+  f.safety_stock_sl,
+FROM
+  final f
+LEFT JOIN {Project ID}.{Dataset}.oms_pack_config pc
+  ON
+    f.product_code = pc.product_code
+LEFT JOIN {Project ID}.{Dataset}.oms_sku_hierarchy p
+  ON
+    p.product_code = f.product_code","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_resolved_product_profile_intermediate,1,,"WITH
+  base AS (
+    SELECT
+      article,
+      channel,
+      start_date,
+      end_date,
+      rule_code,
+      pp_code,
+      created_at,
+      COUNT(*) OVER (PARTITION BY article, channel, pp_code) AS count_pp_code,
+      RANK()
+        OVER (PARTITION BY article, channel ORDER BY created_at DESC) AS rnk
+    FROM
+      `{Project ID}.{Dataset}.resolved_product_profile` a
+    JOIN
+      `{Project ID}.{Dataset}.oms_sku_hierarchy` b
+      USING (product_code)
+    JOIN
+      (
+        SELECT
+          product_code
+        FROM
+          `{Project ID}.{Dataset}.oms_product_hybrid_attributes`
+        WHERE
+          ordering = 'Y'
+      )
+      USING (product_code)
+  ),
+  date_series_resolved_table AS (
+    SELECT
+      article,
+      channel,
+      start_date,
+      end_date,
+      rule_code,
+      pp_code,
+      DATE_ADD(start_date, INTERVAL x DAY) AS date_in_series
+    FROM
+      (
+        SELECT
+          *
+        FROM
+          (
+            SELECT
+              *,
+              MAX(count_pp_code)
+                OVER (PARTITION BY article, channel) AS max_count_pp_code
+            FROM
+              base
+          )
+        WHERE
+          count_pp_code = max_count_pp_code
+          AND rnk = 1
+      )
+    CROSS JOIN
+      UNNEST(GENERATE_ARRAY(0, DATE_DIFF(end_date, start_date, DAY), 1)) AS x
+  )
+SELECT DISTINCT
+  article,
+  channel,
+  fiscal_year_week,
+  rule_code,
+  pp_code
+FROM date_series_resolved_table
+JOIN `{Project ID}.{Dataset}.oms_fiscal_date_mapping` fdm
+  ON DATE(fdm.calendar_date) = date_in_series
+WHERE
+  calendar_date
+  BETWEEN CURRENT_DATE()
+  AND DATE_ADD(CURRENT_DATE(), INTERVAL 103 WEEK)
+ORDER BY article, fiscal_year_week","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_sku_store_eligibility,1,,"WITH
+  active_product_status AS (
+    SELECT DISTINCT
+      product_code,
+      start_date,
+      end_date
+    FROM `{Project ID}.{Dataset}.sku_status`
+    JOIN
+      (
+        SELECT
+          product_code
+        FROM
+          `{Project ID}.{Dataset}.oms_product_hybrid_attributes`
+        WHERE
+          ordering = 'Y'
+      )
+      USING (product_code)
+    WHERE
+      attribute_value = 'active'
+  ),
+  active_store_status AS (
+    SELECT DISTINCT
+      store_code,
+      start_date,
+      end_date
+    FROM `{Project ID}.{Dataset}.store_status`
+    JOIN
+      (
+        SELECT DISTINCT
+          store_code
+        FROM
+          `{Project ID}.{Dataset}.store_master`
+      )
+      USING (store_code)
+    WHERE
+      attribute_value = 'active'
+  ),
+  store_sku_status AS (
+    SELECT DISTINCT
+      product_code,
+      store_code,
+      start_date,
+      end_date
+    FROM `{Project ID}.{Dataset}.product_store_mapping`
+    JOIN
+      (
+        SELECT
+          product_code
+        FROM
+          `{Project ID}.{Dataset}.oms_product_hybrid_attributes`
+        WHERE
+          ordering = 'Y'
+      )
+      USING (product_code)
+    JOIN
+      (
+        SELECT DISTINCT
+          store_code
+        FROM
+          `{Project ID}.{Dataset}.store_master`
+      )
+      USING (store_code)
+    WHERE
+      is_active
+  ),
+  fiscal_weeks AS (
+    SELECT DISTINCT
+      fiscal_year_week,
+      week_start_date,
+      week_end_date
+    FROM
+      `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+    WHERE
+      calendar_date
+      BETWEEN CURRENT_DATE()
+      AND DATE_ADD(CURRENT_DATE(), INTERVAL 103 WEEK)
+  ),
+  final_sku_store AS (
+    SELECT
+      product_code,
+      store_code,
+      fiscal_year_week
+    FROM
+      (
+        SELECT
+          product_code,
+          fiscal_year_week
+        FROM
+          active_product_status
+        JOIN
+          fiscal_weeks
+          ON week_start_date BETWEEN start_date AND end_date
+      )
+    JOIN
+      (
+        SELECT
+          product_code,
+          store_code,
+          fiscal_year_week
+        FROM
+          store_sku_status
+        JOIN
+          fiscal_weeks
+          ON week_start_date BETWEEN start_date AND end_date
+      )
+      USING (product_code, fiscal_year_week)
+    JOIN
+      (
+        SELECT
+          store_code,
+          fiscal_year_week
+        FROM
+          active_store_status
+        JOIN
+          fiscal_weeks
+          ON week_start_date BETWEEN start_date AND end_date
+      )
+      USING (store_code, fiscal_year_week)
+  )
+SELECT
+  article,
+  product_code,
+  '-' AS channel,
+  '-' AS loc_code,
+  store_code,
+  fiscal_year_week,
+FROM final_sku_store f
+JOIN `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+  USING (product_code)
+ORDER BY product_code, store_code, fiscal_year_week","Historic and Periodic versions are same. 
+This is a full replace table."
+budget_allocation,1,,"WITH
+  planned AS (
+    SELECT
+      fiscal_year_week AS time_period_key,
+      l1_name,
+      l2_name,
+      l3_name,  -- You can input client specific product and time hierarchy list based on level at which budget is defined. This query is given for reference only.
+      SUM(planned_budget_units) AS planned_budget_units,
+      SUM(planned_budget_cost) AS planned_budget_cost
+    FROM `{Project ID}.{Dataset}.{Budget Data Table}`
+    JOIN `{Project ID}.{Dataset}.oms_sku_hierarchy`
+      USING (l1_name, l2_name, l3_name)
+    WHERE
+      l3_name IS NOT NULL
+      AND fiscal_year_week
+        IS NOT NULL  -- You can input client specific conditions here
+    GROUP BY
+      fiscal_year_week,
+      l1_name,
+      l2_name,
+      l3_name
+  ),
+  po AS (
+    SELECT
+      fiscal_year_week AS time_period_key,
+      l1_name,
+      l2_name,
+      l3_name,
+      SUM(po_units) AS po_units,
+      SUM(po_cost) AS po_cost
+    FROM `{Project ID}.{Dataset}.po_master`
+    JOIN `{Project ID}.{Dataset}.oms_sku_hierarchy`
+      USING (level)  -- you can join with level of the tables
+    JOIN `{Project ID}.{Dataset}.fiscal_date_mapping` f
+      USING (level)  -- you can join with level of the tables
+    WHERE
+      DATE(deliverydate) > f.date
+      AND l3_name IS NOT NULL
+      AND fiscal_year_week IS NOT NULL
+    GROUP BY
+      fiscal_year_week,
+      l1_name,
+      l2_name,
+      l3_name
+  ),
+  base AS (
+    SELECT
+      p.time_period_key,
+      p.l1_name,
+      p.l2_name,
+      p.l3_name,
+      GREATEST(p.planned_budget_units, 0) AS planned_budget_units,
+      GREATEST(p.planned_budget_cost, 0) AS planned_budget_cost,
+      COALESCE(po.po_units, 0) AS po_units,
+      COALESCE(po.po_cost, 0) AS po_cost
+    FROM planned p
+    LEFT JOIN po
+      ON
+        p.time_period_key = po.time_period_key
+        AND p.l1_name = po.l1_name
+        AND p.l2_name = po.l2_name
+        AND p.l3_name = po.l3_name
+  ),
+  hier AS (
+    SELECT
+      hierarchy_id,
+      l1_name,
+      l2_name,
+      l3_name
+    FROM `{Project ID}.{Dataset}.budget_product_hierarchy`
+    WHERE hierarchy_level = 'L3'
+  ),
+  tm AS (
+    SELECT
+      time_period_id,
+      time_period_key
+    FROM `{Project ID}.{Dataset}.budget_time_periods`
+    WHERE time_period_type = 'WEEK'
+  )
+SELECT
+  ROW_NUMBER()
+    OVER (
+      ORDER BY b.time_period_key, b.l1_name, b.l2_name, b.l3_name
+    ) AS budget_id,
+  h.hierarchy_id,
+  t.time_period_id,
+  b.planned_budget_units,
+  b.planned_budget_cost,
+  b.planned_budget_units - b.po_units AS available_budget_units,
+  b.planned_budget_cost - b.po_cost AS available_budget_cost,
+  'PLANNED' AS budget_type,
+  'USD' AS currency_code,
+  CURRENT_TIMESTAMP() AS created_at,
+  CURRENT_TIMESTAMP() AS updated_at,
+  '' AS created_by,
+  '' AS updated_by
+FROM base b
+JOIN hier h
+  ON
+    b.l1_name = h.l1_name
+    AND b.l2_name = h.l2_name
+    AND b.l3_name = h.l3_name
+JOIN tm t
+  ON b.time_period_key = t.time_period_key",
+po_master_por,1,,Query will be coming soon,
+oms_constraints_lead_time,1,Historic,"SELECT DISTINCT
+  pm.article,
+  dc_code AS loc_code,
+  pm.vendor_code,
+  pm.vendor_name,
+  {PO to Order Processing Time} AS po_to_order_processing,
+  {Lead Time} AS lead_time,
+  {Shipping Lead Time} AS shipping_lead_time,
+  {QC Time} AS qc_time,
+  ""{Default Mode of Shipment}"" AS mode_shipment,
+  1 AS default_mode,
+  CURRENT_DATE AS from_date,
+  CAST('2099-12-31' AS DATE) AS to_date,
+  CAST(NULL AS FLOAT64) AS transportation_cost,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  '-' AS channel,
+  {Fabric Lead Time} AS fabric_lt,
+  0 AS variance,
+  {Manufacturing Lead Time} AS manufacturing_lead_time,
+  category,
+  CAST(NULL AS INT64) AS id
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+JOIN
+  `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+  USING (product_code)
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  pha.ordering = 'Y'","Historic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values"
+oms_constraints_lead_time,2,Periodic,"WITH base AS (
+  SELECT DISTINCT
+    pm.article,
+    dc_code AS loc_code,
+    pm.vendor_code,
+    pm.vendor_name,
+    {PO to Order Processing Time} AS po_to_order_processing,
+    {Lead Time} AS lead_time,
+    {Shipping Lead Time} AS shipping_lead_time,
+    {QC Time} AS qc_time,
+   ""{Default Mode of Shipment}"" AS mode_shipment,
+    1 AS default_mode,
+    CURRENT_DATE AS from_date,
+    CAST('2099-12-31' AS DATE) AS to_date,
+    CAST(NULL AS FLOAT64) AS transportation_cost,
+    CAST(112 AS INT64) AS created_by,
+    CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+    CAST(NULL AS INT64) AS updated_by,
+    CAST(NULL AS TIMESTAMP) AS updated_at,
+    CAST(NULL AS STRING) AS column_updated,
+    '-' AS channel,
+    {Fabric Lead Time} AS fabric_lt,
+    0 AS variance,
+    {Manufacturing Lead Time} AS manufacturing_lead_time,
+    category,
+    CAST(NULL AS INT64) AS id
+  FROM
+    `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+  JOIN
+    `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+    USING (product_code)
+  JOIN
+    `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+    USING (product_code)
+  WHERE
+    pha.ordering = 'Y'
+)
+SELECT
+  a.*
+FROM
+  base a
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_lead_time` b
+USING (article, loc_code, channel, vendor_code, mode_shipment)
+WHERE
+  b.article IS NULL","Periodic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values.
+This query uses oms_constraints_lead_time backsync table."
+oms_constraints_shipment,1,Historic,"SELECT DISTINCT
+  pm.product_code,
+  dc_code AS loc_code,
+  '-' AS channel,
+  pm.vendor_code,
+  pm.vendor_name,
+  {Minimum Replenishment Quantity} AS min_replenishment_quantity,
+  {Maximum Replenishment Quantity} AS max_replenishment_quantity,
+  {Order Multiple} AS order_multiple,
+  '-' AS default_mode,
+  CAST(NULL AS INT64) AS id,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  {MOQ Tolerance} AS moq_tolerance,
+  '-' AS shipment_scheduler,
+  pm.article
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+JOIN
+  `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+  USING (product_code)
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  pha.ordering = 'Y'","Historic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values"
+oms_constraints_shipment,2,Periodic,"WITH base AS (
+  SELECT DISTINCT
+    pm.product_code,
+    dc_code AS loc_code,
+    '-' AS channel,
+    pm.vendor_code,
+    pm.vendor_name,
+    {Minimum Replenishment Quantity} AS min_replenishment_quantity,
+    {Maximum Replenishment Quantity} AS max_replenishment_quantity,
+    {Order Multiple} AS order_multiple,
+    '-' AS default_mode,
+    CAST(NULL AS INT64) AS id,
+    CAST(112 AS INT64) AS created_by,
+    CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+    CAST(NULL AS INT64) AS updated_by,
+    CAST(NULL AS TIMESTAMP) AS updated_at,
+    CAST(NULL AS STRING) AS column_updated,
+    {MOQ Tolerance} AS moq_tolerance,
+    '-' AS shipment_scheduler,
+    pm.article
+  FROM
+    `{Project ID}.{Dataset}.product_master` pm
+  JOIN
+    `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+    USING (product_code)
+  JOIN
+    `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+    USING (product_code)
+  WHERE
+    pha.ordering = 'Y'
+)
+SELECT
+  a.*
+FROM
+  base a
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_shipment` b
+USING (product_code, loc_code, channel, vendor_code)
+WHERE
+  b.product_code IS NULL","Periodic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values.
+This query uses oms_constraints_shipment backsync table."
+oms_constraints_safety_stock,1,Historic,"SELECT DISTINCT
+  pm.article,
+  dc_code AS loc_code,
+  pm.vendor_code,
+  pm.vendor_name,
+  ""{Default Safety Stock Method}"" AS safety_stock_method,
+  {Default Safety Stock WOS} AS safety_stock_twos,
+  {Default Demand WOS} AS demand_twos,
+  {Default Service Level Percentage} AS service_level_pct,
+  {Default Safety Stock Units} AS stock_units,
+  0 AS inventory_hold,
+  CAST(NULL AS INT64) AS id,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  '-' AS channel
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+JOIN
+  `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+  USING (product_code)
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  pha.ordering = 'Y'","Historic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values"
+oms_constraints_safety_stock,2,Periodic,"WITH base AS (
+  SELECT DISTINCT
+    pm.article,
+    dc_code AS loc_code,
+    pm.vendor_code,
+    pm.vendor_name,
+    ""{Default Safety Stock Method}"" AS safety_stock_method,
+    {Default Safety Stock WOS} AS safety_stock_twos,
+    {Default Demand WOS} AS demand_twos,
+    {Default Service Level Percentage} AS service_level_pct,
+    {Default Safety Stock Units} AS stock_units,
+    0 AS inventory_hold,
+    CAST(NULL AS INT64) AS id,
+    CAST(112 AS INT64) AS created_by,
+    CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+    CAST(NULL AS INT64) AS updated_by,
+    CAST(NULL AS TIMESTAMP) AS updated_at,
+    CAST(NULL AS STRING) AS column_updated,
+    '-' AS channel
+  FROM
+    `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+  JOIN
+    `{Project ID}.{Dataset}.oms_dc_product_mapping` pdm
+    USING (product_code)
+  JOIN
+    `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+    USING (product_code)
+  WHERE
+    pha.ordering = 'Y'
+)
+SELECT
+  a.*
+FROM
+  base a
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_constraints_safety_stock` b
+USING (article, loc_code, channel, vendor_code)
+WHERE
+  b.article IS NULL","Periodic Version.
+This is an append only table.
+If there is client shared feed, you can use that in the query instead of default values.
+This query uses oms_constraints_safety_stock backsync table."
+oms_po_master,1,,"WITH
+  actual_po AS (
+    SELECT
+      '-' AS order_id,
+      po_id,
+      '-' AS asn_id,
+      product_code,
+      store_code AS loc_code,
+      '-' AS channel,
+      po_approval_date,
+      projected_delivery_date,
+      oo,
+      it,
+      CAST(NULL AS int64) AS pseudo_po
+    FROM `{Project ID}.{Dataset}.po_master`
+    JOIN `{Project ID}.{Dataset}.oms_product_hybrid_attributes`
+      USING (product_code)
+    WHERE ordering = 'Y' AND expected_delivery_date >= current_date()
+  ),
+  pending_review_po AS (
+    SELECT
+      product_code,
+      loc_code,
+      '-' AS channel,
+      fiscal_year_week,
+      order_status_id,
+      FORMAT_DATE(
+        '%Y-%m-%d',
+        PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(order_batch_name, r'(\d{8})')))
+        AS our_transfer_date,
+      order_quantity,
+      created_at,
+      editable_expected_receipt_date
+    FROM `{Project ID}.{Dataset}.oms_orders_recommended`
+    WHERE order_status_id IN (-1, 1)
+  ),
+  pending_review_po_final AS (
+    SELECT
+      concat(
+        product_code, ""-"", loc_code, ""-"", channel, ""-"", projected_delivery_date)
+        AS order_id,
+      ""-"" AS po_id,
+      ""-"" AS asn_id,
+      product_code,
+      loc_code,
+      ""-"" AS channel,
+      projected_delivery_date,
+      CAST(NULL AS int64) AS oo,
+      CAST(NULL AS int64) AS it,
+      order_quantity AS pseudo_po
+    FROM
+      (
+        SELECT
+          product_code,
+          loc_code,
+          channel,
+          CAST(our_transfer_date AS date) our_transfer_date,
+          editable_expected_receipt_date AS projected_delivery_date,
+          sum(order_quantity) order_quantity
+        FROM pending_review_po a
+        GROUP BY 1, 2, 3, 4, 5
+      ) a
+    WHERE current_date() BETWEEN our_transfer_date AND our_transfer_date + 7
+  ),
+  approved_orders AS (
+    SELECT
+      product_code,
+      loc_code,
+      ""-"" AS channel,
+      po_to_order_processing,
+      order_quantity,
+      approved_date,
+      projected_delivery_date
+    FROM
+      (
+        SELECT DISTINCT
+          product_code,
+          loc_code,
+          DATE(created_at) AS approved_date,
+          po_to_order_processing,
+          editable_expected_receipt_date AS projected_delivery_date,
+          sum(order_quantity) AS order_quantity
+        FROM `{Project ID}.{Dataset}.oms_orders_approved` c
+        JOIN
+          (
+            SELECT product_code, loc_code, po_to_order_processing
+            FROM {Project ID}.{Dataset}.oms_constraints_lead_time a
+            JOIN {Project ID}.{Dataset}.oms_sku_hierarchy b
+              USING (article)
+          ) d
+          USING (product_code, loc_code)
+        WHERE order_status_id IN (3)
+        GROUP BY 1, 2, 3, 4, 5
+      )
+  ),
+  approved_orders_match AS (
+    SELECT product_code, loc_code
+    FROM actual_po a
+    JOIN approved_orders b
+      USING (product_code, loc_code)
+    WHERE
+      current_date()
+        BETWEEN approved_date
+        AND approved_date + po_to_order_processing
+      AND po_approval_date
+        BETWEEN approved_date
+        AND approved_date + po_to_order_processing
+  ),
+  approved_orders_final AS (
+    SELECT
+      concat(
+        product_code, ""-"", loc_code, ""-"", channel, ""-"", projected_delivery_date)
+        AS order_id,
+      ""-"" AS po_id,
+      ""-"" AS asn_id,
+      product_code,
+      loc_code,
+      ""-"" AS channel,
+      projected_delivery_date,
+      CAST(NULL AS int64) AS oo,
+      CAST(NULL AS int64) AS it,
+      order_quantity AS pseudo_po
+    FROM approved_orders
+    WHERE
+      concat(product_code, loc_code)
+      NOT IN (
+        SELECT concat(product_code, loc_code)
+        FROM approved_orders_match
+      )
+  ),
+  final_po_data AS (
+    SELECT * EXCEPT (po_approval_date)
+    FROM actual_po
+    UNION ALL
+    SELECT *
+    FROM pending_review_po_final
+    UNION ALL
+    SELECT *
+    FROM approved_orders_final
+  )
+SELECT
+  order_id,
+  po_id,
+  asn_id,
+  product_code,
+  loc_code,
+  channel,
+  projected_delivery_date,
+  b.fiscal_year_week,
+  oo,
+  it,
+  pseudo_po,
+  0 AS quantity_ordered,
+  CAST(112 AS INT64) AS created_by,
+  CAST(CURRENT_TIMESTAMP() AS TIMESTAMP) AS created_at,
+  CAST(NULL AS INT64) AS updated_by,
+  CAST(NULL AS TIMESTAMP) AS updated_at,
+  CAST(NULL AS STRING) AS column_updated,
+  NULL AS row_num,
+  NULL AS id
+FROM final_po_data a
+JOIN {Project ID}.{Dataset}.oms_fiscal_date_mapping b
+  ON a.projected_delivery_date = b.calendar_date","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_order_cycle,1,,"WITH
+  scheduler AS (
+    SELECT
+      sh_name,
+      JSON_EXTRACT_SCALAR(sh_structure, ""$.data.dailyRepeatOn"")
+        AS dailyRepeatOn,
+      CASE
+        WHEN
+          REGEXP_CONTAINS(
+            JSON_EXTRACT_SCALAR(sh_structure, ""$.data.start_date""),
+            r'^\d{4}-\d{2}-\d{2}$')
+          THEN
+            CAST(
+              PARSE_DATE(
+                '%Y-%m-%d',
+                JSON_EXTRACT_SCALAR(sh_structure, ""$.data.start_date""))
+              AS DATE)
+        ELSE
+          COALESCE(
+            CAST(
+              PARSE_TIMESTAMP(
+                '%Y-%m-%dT%H:%M:%E*S',
+                REGEXP_REPLACE(
+                  JSON_EXTRACT_SCALAR(sh_structure, ""$.data.start_date""),
+                  r'(\.\d+)?Z$',
+                  ''))
+              AS DATE),
+            DATE('2000-01-01'))
+        END AS start_date,
+      CASE
+        WHEN
+          JSON_EXTRACT_SCALAR(sh_structure, ""$.data.end_date_options"")
+          = 'never_ending'
+          THEN DATE('9999-12-31')
+        WHEN
+          REGEXP_CONTAINS(
+            JSON_EXTRACT_SCALAR(sh_structure, ""$.data.end_date""),
+            r'^\d{4}-\d{2}-\d{2}$')
+          THEN
+            CAST(
+              PARSE_DATE(
+                '%Y-%m-%d',
+                JSON_EXTRACT_SCALAR(sh_structure, ""$.data.end_date""))
+              AS DATE)
+        ELSE
+          COALESCE(
+            CAST(
+              PARSE_TIMESTAMP(
+                '%Y-%m-%dT%H:%M:%E*S',
+                REGEXP_REPLACE(
+                  JSON_EXTRACT_SCALAR(sh_structure, ""$.data.end_date""),
+                  r'(\.\d+)?Z$',
+                  ''))
+              AS DATE),
+            DATE('9999-12-31'))
+        END AS end_date,
+      JSON_EXTRACT_SCALAR(sh_structure, ""$.data.end_date_options"")
+        AS end_date_options,
+      CAST(
+        JSON_EXTRACT_SCALAR(sh_structure, ""$.data.num_of_occurrence"") AS INT64)
+        AS num_of_occurrence,
+      JSON_VALUE(sh_structure, '$.data.month_toggle.value')
+        AS month_toggle_value,
+      JSON_EXTRACT_SCALAR(sh_structure, ""$.data.frequency_type"")
+        AS frequency_type,
+      JSON_EXTRACT_SCALAR(sh_structure, ""$.frequency_type"")
+        AS frequency_type_global,
+      JSON_VALUE(value1) AS selectedWeeks,
+      CAST(JSON_VALUE(value2) AS int) AS selectedDatesForMonthly,
+      JSON_VALUE(value3) AS selectedDaysForMonthly,
+      CAST(JSON_VALUE(value4) AS int) AS selectedWeeksForMonthly,
+      CAST(JSON_VALUE(value5) AS int) AS selectedDatesForQuaterly,
+      JSON_VALUE(value6) AS selectedDaysForQuaterly,
+      CAST(JSON_VALUE(value7) AS int) AS selectedWeeksForQuarterly,
+      CAST(JSON_VALUE(value8) AS int) AS selectedMonths,
+      CAST(JSON_VALUE(value9) AS int) AS selectedDatesForYearly,
+      JSON_VALUE(value10) AS selectedDaysForYearly,
+      CAST(JSON_VALUE(value11) AS int) AS selectedWeeksForYearly,
+      JSON_VALUE(value12) AS selectedMonthsForYearly
+    FROM
+      (
+        SELECT
+          sh_code,
+          sh_name,
+          PARSE_JSON(sh_structure) AS sh_structure,
+          sh_frequency,
+          is_deleted,
+          created_by,
+          created_at,
+          updated_by,
+          updated_at,
+          is_deletable
+        FROM
+          `{Project ID}.{Dataset}.auto_allocation_scheduler`
+      ) AS base,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeks""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeks""))) AS value1,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForMonthly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForMonthly"")))
+        AS value2,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForMonthly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForMonthly"")))
+        AS value3,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeksForMonthly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeksForMonthly"")))
+        AS value4,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForQuaterly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForQuaterly"")))
+        AS value5,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForQuaterly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForQuaterly"")))
+        AS value6,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(
+              sh_structure, ""$.data.selectedWeeksForQuarterly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeksForQuarterly"")))
+        AS value7,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedMonths""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedMonths""))) AS value8,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForYearly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDatesForYearly"")))
+        AS value9,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForYearly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedDaysForYearly"")))
+        AS value10,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeksForYearly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedWeeksForYearly"")))
+        AS value11,
+      UNNEST(
+        IF(
+          ARRAY_LENGTH(
+            JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedMonthsForYearly""))
+            = 0,
+          ARRAY<JSON>[NULL],
+          JSON_EXTRACT_ARRAY(sh_structure, ""$.data.selectedMonthsForYearly"")))
+        AS value12
+    WHERE
+      sh_name IN (
+        SELECT DISTINCT scheduler
+        FROM `{Project ID}.{Dataset}.oms_constraints_order_policy`
+        WHERE replenishment_strategy = 'Periodic Review'
+      )
+      AND is_deleted = FALSE
+  ),
+  reqd_days AS (
+    SELECT
+      calendar_date,
+      EXTRACT(day FROM calendar_date) AS day_in_calendar_date,
+      day AS fiscal_day_name,
+      day_of_week,
+      week_start_date AS fiscal_week_begin_date,
+      EXTRACT(DAY FROM LAST_DAY(calendar_date)) AS max_day_in_month,
+      EXTRACT(MONTH FROM calendar_date) AS month,
+      EXTRACT(YEAR FROM calendar_date) AS year,
+      MAX(fiscal_week_in_month)
+        OVER (
+          PARTITION BY
+            EXTRACT(YEAR FROM calendar_date),
+            EXTRACT(
+              MONTH
+              FROM
+                calendar_date)
+        ) AS max_week_in_month,
+      week_end_date AS fiscal_week_end_date,
+      fiscal_year_week,
+      fiscal_week_in_month,
+      fiscal_month_in_quarter,
+      INITCAP(LOWER(fiscal_month_name)) AS fiscal_month_name
+    FROM
+      `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+    WHERE
+      fiscal_year_week IN (
+        SELECT DISTINCT fiscal_year_week
+        FROM
+          `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+        WHERE
+          calendar_date
+          BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 70 day)
+          AND LAST_DAY(DATE_ADD(CURRENT_DATE(), INTERVAL 4 year))
+      )
+  ),
+  freq_daily AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      lower(a.frequency_type) = 'daily'
+      AND (b.day_of_week BETWEEN 2 AND 6)
+  ),
+  freq_weekly AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'weekly'
+      AND lower(a.selectedWeeks) = lower(b.fiscal_day_name)
+  ),
+  freq_monthly_dates AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      lower(a.frequency_type) = 'monthly'
+      AND (
+        a.month_toggle_value = 'date'
+        OR a.selectedDatesForMonthly IS NOT NULL)
+      AND b.day_in_calendar_date
+        = LEAST(a.selectedDatesForMonthly, b.max_day_in_month)
+  ),
+  freq_monthly_days AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'monthly'
+      AND (
+        a.month_toggle_value = 'day'
+        OR (
+          a.selectedDaysForMonthly IS NOT NULL
+          AND a.selectedWeeksForMonthly IS NOT NULL))
+      AND UPPER(a.selectedDaysForMonthly) = UPPER(b.fiscal_day_name)
+      AND LEAST(a.selectedWeeksForMonthly, b.max_week_in_month)
+        = b.fiscal_week_in_month
+  ),
+  freq_quarterly_dates AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'quarterly'
+      AND (
+        a.month_toggle_value = 'date'
+        OR (
+          a.selectedDatesForQuaterly IS NOT NULL
+          AND a.selectedMonths IS NOT NULL))
+      AND LEAST(a.selectedDatesForQuaterly, b.max_day_in_month)
+        = b.day_in_calendar_date
+      AND a.selectedMonths = b.fiscal_month_in_quarter
+  ),
+  freq_quarterly_days AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'quarterly'
+      AND (
+        a.month_toggle_value = 'day'
+        OR (
+          a.selectedDaysForQuaterly IS NOT NULL
+          AND a.selectedWeeksForQuarterly IS NOT NULL
+          AND a.selectedMonths IS NOT NULL))
+      AND a.selectedDaysForQuaterly = b.fiscal_day_name
+      AND LEAST(a.selectedWeeksForQuarterly, b.max_week_in_month)
+        = b.fiscal_week_in_month
+      AND a.selectedMonths = b.fiscal_month_in_quarter
+  ),
+  freq_yearly_dates AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'yearly'
+      AND (
+        a.month_toggle_value = 'date'
+        OR (
+          a.selectedDatesForYearly IS NOT NULL
+          AND a.selectedMonthsForYearly IS NOT NULL))
+      AND LEAST(a.selectedDatesForYearly, b.max_day_in_month)
+        = b.day_in_calendar_date
+      AND lower(a.selectedMonthsForYearly) = lower(b.fiscal_month_name)
+  ),
+  freq_yearly_days AS (
+    SELECT
+      a.sh_name,
+      a.start_date,
+      a.end_date,
+      a.frequency_type AS order_cycle,
+      b.fiscal_day_name AS order_cycle_day,
+      b.fiscal_year_week,
+      b.calendar_date AS order_placement_date,
+      b.fiscal_week_begin_date AS start_week_date,
+      b.fiscal_week_end_date AS end_week_date,
+      CASE
+        WHEN
+          calendar_date > LEAST(
+            a.end_date, DATE_ADD(CURRENT_DATE(), INTERVAL 104 week))
+          THEN 1
+        ELSE 0
+        END
+        AS flag_for_post_two_years_date
+    FROM
+      scheduler a
+    CROSS JOIN
+      reqd_days b
+    WHERE
+      a.frequency_type = 'yearly'
+      AND (
+        a.month_toggle_value = 'day'
+        OR (
+          a.selectedDaysForYearly IS NOT NULL
+          AND a.selectedWeeksForYearly IS NOT NULL
+          AND a.selectedMonthsForYearly IS NOT NULL))
+      AND UPPER(a.selectedDaysForYearly) = UPPER(b.fiscal_day_name)
+      AND LEAST(a.selectedWeeksForYearly, b.max_week_in_month)
+        = b.fiscal_week_in_month
+      AND UPPER(a.selectedMonthsForYearly) = UPPER(b.fiscal_month_name)
+  ),
+  all_types_of_frequency AS (
+    SELECT
+      *
+    FROM
+      freq_daily
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_weekly
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_monthly_days
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_monthly_dates
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_quarterly_days
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_quarterly_dates
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_yearly_days
+    UNION ALL
+    SELECT
+      *
+    FROM
+      freq_yearly_dates
+  ),
+  sku_as_periodic_review AS (
+    SELECT DISTINCT
+      b.product_code,
+      a.vendor_code,
+      a.scheduler
+    FROM
+      (
+        SELECT
+          b.*,
+          a.product_code
+        FROM
+          `{Project ID}.{Dataset}.oms_sku_hierarchy` a
+        INNER JOIN
+          `{Project ID}.{Dataset}.oms_constraints_order_policy` b
+          ON
+            a.article = b.article AND a.vendor_id = b.vendor_code
+      ) AS a
+    INNER JOIN
+      `{Project ID}.{Dataset}.oms_product_hybrid_attributes` b
+      ON
+        a.product_code = b.product_code
+    WHERE
+      replenishment_strategy = 'Periodic Review'
+      AND scheduler IS NOT NULL
+      AND ordering = 'Y'
+  ),
+  final AS (
+    SELECT
+      product_code,
+      sh_name,
+      vendor_code,
+      fiscal_year_week,
+      order_placement_date,
+      start_date,
+      end_date,
+      DATE_ADD(CURRENT_DATE(), INTERVAL 104 week) AS two_years_date_interval,
+      flag_for_post_two_years_date,
+      0 AS rnk_post_104_week
+    FROM
+      sku_as_periodic_review a
+    INNER JOIN
+      all_types_of_frequency b
+      ON
+        a.scheduler = b.sh_name
+    WHERE
+      flag_for_post_two_years_date = 0
+    UNION ALL
+    SELECT
+      product_code,
+      sh_name,
+      vendor_code,
+      fiscal_year_week,
+      order_placement_date,
+      start_date,
+      end_date,
+      DATE_ADD(CURRENT_DATE(), INTERVAL 104 week) AS two_years_date_interval,
+      flag_for_post_two_years_date,
+      RANK()
+        OVER (
+          PARTITION BY product_code, vendor_code
+          ORDER BY order_placement_date ASC
+        ) AS rnk_post_104_week
+    FROM
+      sku_as_periodic_review a
+    INNER JOIN
+      all_types_of_frequency b
+      ON
+        a.scheduler = b.sh_name
+    WHERE
+      flag_for_post_two_years_date = 1
+  )
+SELECT
+  product_code,
+  sh_name,
+  vendor_code,
+  fiscal_year_week,
+  order_placement_date,
+  start_date,
+  end_date,
+  DATE_ADD(CURRENT_DATE(), INTERVAL 104 week) AS two_years_date_interval,
+  flag_for_post_two_years_date,
+  rnk_post_104_week
+FROM
+  final
+WHERE
+  rnk_post_104_week IN (
+    0,
+    1)
+  AND order_placement_date >= start_date
+ORDER BY
+  2,
+  1,
+  5","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_product_profile_weeks,1,ADA Visual Version,"WITH
+  user_created AS (
+    SELECT
+      product_code,
+      article,
+      size,
+      store_code,
+      fiscal_year_week,
+      profile_type,
+      COALESCE(size_level_proportion, 0) AS size_level_proportion,
+      COALESCE(overall_proportion, 0) AS overall_proportion,
+      COALESCE(overall_proportion, 0) AS overall_channel_proportion
+    FROM
+      (
+        SELECT
+          article,
+          product_code,
+          size,
+          fiscal_year_week,
+          rp.pp_code,
+          'user_created' AS profile_type
+        FROM
+          `{Project ID}.{Dataset}.oms_resolved_product_profile_intermediate`
+            rp
+        JOIN
+          `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+          USING (article)
+      ) a
+    LEFT JOIN
+      `{Project ID}.{Dataset}.product_profile_user_mapping_size` u
+      USING (
+        size,
+        pp_code)
+    WHERE
+      store_code IS NOT NULL
+  ),
+  ia_recommended AS (
+    SELECT DISTINCT
+      a.product_code,
+      a.article,
+      a.size,
+      a.store_code,
+      a.fiscal_year_week,
+      'ia_recommended' AS profile_type,
+      COALESCE(
+        SAFE_DIVIDE(
+          final_forecast,
+          SUM(final_forecast)
+            OVER (PARTITION BY a.article, store_code, fiscal_year_week)),
+        0) AS size_level_proportion,
+      COALESCE(
+        SAFE_DIVIDE(
+          final_forecast,
+          SUM(final_forecast) OVER (PARTITION BY a.article, fiscal_year_week)),
+        0) AS overall_proportion,
+      COALESCE(
+        SAFE_DIVIDE(
+          final_forecast,
+          SUM(final_forecast)
+            OVER (PARTITION BY a.article, channel, fiscal_year_week)),
+        0) AS overall_channel_proportion
+    FROM
+      (
+        SELECT
+          product_code,
+          article,
+          size,
+          store_code,
+          channel,
+          fiscal_year_week,
+          adjusted_forecast_qty AS final_forecast
+        FROM
+          `{Project ID}.{Dataset}.ada_visual_predictions_updated`
+        WHERE
+          adjusted_discount_flag IS TRUE
+          AND fiscal_year_week > 0
+      ) a
+  ),
+  ia_recommended_updated AS (
+    SELECT
+      ia.*
+    FROM ia_recommended ia
+    LEFT JOIN user_created uc
+      ON
+        ia.article = uc.article
+        AND ia.fiscal_year_week = uc.fiscal_year_week
+        AND ia.store_code NOT IN ({Ecommerce Stores})
+    WHERE
+      uc.article IS NULL
+  ),
+  final AS (
+    SELECT
+      *
+    FROM
+      user_created
+    UNION ALL
+    SELECT
+      *
+    FROM
+      ia_recommended_updated
+  )
+SELECT
+  product_code,
+  article,
+  size,
+  store_code,
+  fiscal_year_week,
+  profile_type,
+  size_level_proportion,
+  overall_proportion,
+  overall_channel_proportion
+FROM
+  final","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_product_profile_weeks,2,Item Smart Version,Query will be coming soon,
+ordering_product_master,1,,Query will be coming soon,
+oms_central_table,1,,"WITH
+  all_products AS (
+    SELECT
+      product_code,
+      dc_code AS loc_code,
+      vendor_code,
+      '-' AS channel
+    FROM
+      `{Project ID}.{Dataset}.oms_sku_hierarchy`
+    JOIN `{Project ID}.{Dataset}.oms_dc_product_mapping`
+      USING (product_code)
+  ),
+  oc_skus AS (
+    SELECT DISTINCT
+      x.product_code,
+      x.article,
+      x.loc_code,
+      x.channel,
+      x.vendor_code,
+      y.replenishment_strategy,
+      order_placement_date
+    FROM
+      (
+        SELECT
+          pm.product_code,
+          pm.article,
+          sm.dc_code AS loc_code,
+          '-' AS channel,
+          pm.vendor_code
+        FROM
+          `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+        JOIN `{Project ID}.{Dataset}.oms_dc_product_mapping` sm
+          USING (product_code)
+        JOIN
+          `{Project ID}.{Dataset}.oms_constraints_status` ocs
+          USING (product_code)
+        WHERE
+          ocs.status = 'Replenishment'
+      ) x
+    JOIN
+      (
+        SELECT
+          article,
+          channel,
+          vendor_code,
+          replenishment_strategy
+        FROM
+          `{Project ID}.{Dataset}.oms_constraints_order_policy` op
+        WHERE
+          replenishment_strategy = 'Periodic Review'
+      ) y
+      ON
+        x.article = y.article
+        AND x.vendor_code = y.vendor_code
+    JOIN
+      `{Project ID}.{Dataset}.oms_order_cycle` oc
+      ON
+        oc.product_code = x.product_code
+    JOIN
+      all_products s
+      ON
+        s.product_code = x.product_code
+        AND s.loc_code = x.loc_code
+        AND s.vendor_code = x.vendor_code
+    WHERE
+      oc.order_placement_date >= CURRENT_DATE() - 7
+  ),
+  fiscal_date_mapping AS (
+    SELECT
+      calendar_date,
+      day_of_week,
+      week_start_date,
+      week_end_date,
+      fiscal_year_week,
+      fiscal_week_in_month,
+      fiscal_month_in_quarter,
+      fiscal_month_name
+    FROM
+      `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+    ORDER BY
+      1
+  ),
+  union_skus AS (
+    SELECT DISTINCT
+      product_code,
+      article,
+      loc_code,
+      channel,
+      vendor_code,
+      order_placement_date
+    FROM
+      oc_skus
+  ),
+  updated_op_date AS (
+    SELECT DISTINCT
+      product_code,
+      article,
+      loc_code,
+      channel,
+      vendor_code,
+      order_placement_date,
+      CASE
+        WHEN order_placement_date > CURRENT_DATE() THEN order_placement_date
+        WHEN order_placement_date <= CURRENT_DATE() THEN CURRENT_DATE()
+        END
+        AS updated_order_placement_date
+    FROM
+      union_skus
+  ),
+  order_freq AS (
+    SELECT DISTINCT
+      product_code,
+      article,
+      loc_code,
+      channel,
+      vendor_code,
+      order_placement_date,
+      CASE
+        WHEN DATE_DIFF(next_order_date, order_placement_date, WEEK) IN (4, 5, 6)
+          THEN 'monthly'
+        WHEN
+          DATE_DIFF(next_order_date, order_placement_date, WEEK)
+          IN (
+            8,
+            9,
+            10)
+          THEN 'bi-monthly'
+        WHEN
+          DATE_DIFF(next_order_date, order_placement_date, WEEK)
+          IN (12, 13, 14)
+          THEN 'quarterly'
+        ELSE 'NA'
+        END
+        AS order_frequency
+    FROM
+      (
+        SELECT
+          product_code,
+          article,
+          loc_code,
+          channel,
+          vendor_code,
+          order_placement_date,
+          LEAD(order_placement_date, 1)
+            OVER (
+              PARTITION BY product_code, loc_code, channel, vendor_code
+              ORDER BY order_placement_date
+            ) AS next_order_date
+        FROM
+          updated_op_date
+      )
+  ),
+  sku_base_info AS (
+    SELECT DISTINCT
+      product_code,
+      article,
+      loc_code,
+      channel,
+      vendor_code,
+      mode_shipment AS mode_of_shipment,
+      lead_time AS vendor_lead_time,
+      manufacturing_lead_time,
+      shipping_lead_time,
+      qc_time,
+      order_freq.order_placement_date,
+      updated_order_placement_date,
+      replenishment_strategy,
+      order_strategy,
+      order_frequency,
+      shipment_frequency
+    FROM
+      order_freq
+    JOIN
+      updated_op_date
+      USING (
+        product_code,
+        article,
+        loc_code,
+        channel,
+        vendor_code,
+        order_placement_date)
+    JOIN
+      `{Project ID}.{Dataset}.oms_constraints_lead_time` lt
+      USING (
+        article,
+        loc_code,
+        vendor_code,
+        channel)
+    JOIN
+      `{Project ID}.{Dataset}.oms_constraints_order_policy` op
+      USING (
+        article,
+        vendor_code,
+        channel)
+  ),
+  vlt AS (
+    SELECT
+      product_code,
+      loc_code,
+      channel,
+      vendor_code,
+      mode_of_shipment,
+      order_placement_date,
+      vendor_lead_time,
+      (order_placement_date + vendor_lead_time) AS vlt_date
+    FROM
+      sku_base_info
+  ),
+  vsd AS (
+    SELECT
+      product_code,
+      loc_code,
+      vlt.channel,
+      vendor_code,
+      vlt.mode_of_shipment,
+      order_placement_date,
+      CASE
+        WHEN order_placement_date <= vc_start_date
+          THEN
+            (
+              CASE
+                WHEN vlt_date >= vc_end_date
+                  THEN COALESCE(DATE_DIFF(vc_end_date, vc_start_date, DAY), 0)
+                WHEN vlt_date <= vc_end_date AND vlt_date >= vc_start_date
+                  THEN
+                    COALESCE(
+                      DATE_DIFF(vlt_date, vc_start_date, DAY)
+                        + DATE_DIFF(vc_end_date, vlt_date, DAY),
+                      0)
+                WHEN vlt_date <= vc_start_date THEN 0
+                END)
+        WHEN order_placement_date BETWEEN vc_start_date AND vc_end_date
+          THEN NULL
+        ELSE 0
+        END
+        AS vendor_shutdown_days
+    FROM
+      sku_base_info
+    JOIN
+      vlt
+      USING (
+        product_code,
+        loc_code,
+        channel,
+        vendor_code,
+        mode_of_shipment,
+        order_placement_date)
+    LEFT JOIN
+      `{Project ID}.{Dataset}.oms_vendor_closure` vc
+      USING (vendor_code)
+  ),
+  vsd2 AS (
+    SELECT
+      product_code,
+      loc_code,
+      channel,
+      vendor_code,
+      mode_of_shipment,
+      order_placement_date,
+      SUM(vendor_shutdown_days) AS vendor_shutdown_days
+    FROM
+      vsd
+    WHERE
+      vendor_shutdown_days IS NOT NULL
+    GROUP BY
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+  ),
+  elt AS (
+    SELECT
+      product_code,
+      loc_code,
+      vlt.channel,
+      vendor_code,
+      vlt.mode_of_shipment,
+      order_placement_date,
+      (
+        vlt.vendor_lead_time + shipping_lead_time + qc_time
+        + vendor_shutdown_days)
+        AS eff_lead_time,
+      order_placement_date + (
+        vlt.vendor_lead_time + shipping_lead_time + qc_time
+        + vendor_shutdown_days) AS receipt_date
+    FROM
+      vlt
+    JOIN
+      vsd2
+      USING (
+        product_code,
+        loc_code,
+        channel,
+        vendor_code,
+        mode_of_shipment,
+        order_placement_date)
+    JOIN
+      sku_base_info
+      USING (
+        product_code,
+        loc_code,
+        channel,
+        vendor_code,
+        mode_of_shipment,
+        order_placement_date)
+  ),
+  eff_dem_weeks AS (
+    SELECT
+      product_code,
+      loc_code,
+      channel,
+      vendor_code,
+      mode_of_shipment,
+      order_placement_date,
+      receipt_date,
+      demand_weeks,
+      DATE_ADD(receipt_date, INTERVAL demand_weeks WEEK) AS demand_end_date
+    FROM
+      (
+        SELECT
+          product_code,
+          y.loc_code,
+          y.channel,
+          y.vendor_code,
+          y.mode_of_shipment,
+          order_placement_date,
+          receipt_date,
+          next_receipt_date,
+          CASE
+            WHEN order_strategy = 'Week of Supply' THEN demand_twos
+            WHEN order_strategy = 'Order Cycle Based'
+              THEN DATE_DIFF(next_receipt_date, receipt_date, WEEK)
+            END
+            AS demand_weeks
+        FROM
+          (
+            SELECT
+              *,
+              LEAD(receipt_date, 1)
+                OVER (
+                  PARTITION BY product_code, loc_code, channel, vendor_code
+                  ORDER BY order_placement_date
+                ) AS next_receipt_date
+            FROM
+              elt
+          ) y
+        JOIN
+          sku_base_info b
+          USING (
+            product_code,
+            loc_code,
+            channel,
+            vendor_code,
+            mode_of_shipment,
+            order_placement_date)
+        JOIN
+          `{Project ID}.{Dataset}.oms_constraints_safety_stock` ss
+          ON
+            b.article = ss.article
+            AND b.channel = ss.channel
+            AND b.vendor_code = ss.vendor_code
+            AND b.loc_code = ss.loc_code
+      )
+  )
+SELECT
+  product_code,
+  b.article,
+  loc_code,
+  b.channel,
+  vendor_code,
+  TRUE AS default_flag,
+  b.mode_of_shipment,
+  b.vendor_lead_time,
+  b.manufacturing_lead_time,
+  shipping_lead_time,
+  qc_time,
+  vendor_shutdown_days,
+  eff_lead_time,
+  order_placement_date AS order_placement_date_original,
+  o.fiscal_year_week AS fiscal_year_week_original,
+  o.week_start_date AS order_week_start_date_original,
+  o.week_end_date AS order_week_end_date_original,
+  updated_order_placement_date AS order_placement_date,
+  u.fiscal_year_week AS fiscal_year_week,
+  u.week_start_date AS order_week_start_date,
+  u.week_end_date AS order_week_end_date,
+  vlt_date,
+  elt.receipt_date,
+  r.fiscal_year_week AS receipt_week,
+  r.week_start_date AS receipt_week_start_date,
+  r.week_end_date AS receipt_week_end_date,
+  replenishment_strategy,
+  order_strategy,
+  demand_weeks,
+  order_frequency,
+  shipment_frequency,
+  d.fiscal_year_week AS demand_end_week,
+  'Order Cycle' AS order_type,
+  CAST(NULL AS INT64) AS order_sequence,
+  FALSE AS skip_flag
+FROM
+  sku_base_info b
+JOIN
+  vlt
+  USING (
+    product_code,
+    channel,
+    loc_code,
+    vendor_code,
+    mode_of_shipment,
+    order_placement_date)
+JOIN
+  vsd2
+  USING (
+    product_code,
+    channel,
+    loc_code,
+    vendor_code,
+    mode_of_shipment,
+    order_placement_date)
+JOIN
+  elt
+  USING (
+    product_code,
+    channel,
+    loc_code,
+    vendor_code,
+    mode_of_shipment,
+    order_placement_date)
+JOIN
+  eff_dem_weeks edw
+  USING (
+    product_code,
+    channel,
+    loc_code,
+    vendor_code,
+    mode_of_shipment,
+    order_placement_date)
+JOIN
+  fiscal_date_mapping o
+  ON
+    o.calendar_date = b.order_placement_date
+JOIN
+  fiscal_date_mapping r
+  ON
+    r.calendar_date = elt.receipt_date
+JOIN
+  fiscal_date_mapping d
+  ON
+    d.calendar_date = edw.demand_end_date
+JOIN
+  fiscal_date_mapping u
+  ON
+    u.calendar_date = b.updated_order_placement_date
+ORDER BY
+  product_code,loc_code,fiscal_year_week","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_late_orders_report,1,,"WITH
+  late_orders AS (
+    SELECT
+      a.vendor_code,
+      vendor_name,
+      po_id,
+      product_code,
+      store_code AS loc_code,
+      '-' AS channel,
+      article,
+      style,
+      size,
+      order_date,
+      projected_delivery_date,
+      SUM(quantity) AS total_order_qty,
+      0 AS total_received_qty,
+      SUM(quantity) AS late_order_qty
+    FROM
+      `{Project ID}.{Dataset}.po_master` a
+    JOIN
+      `{Project ID}.{Dataset}.oms_sku_hierarchy` b
+      USING (product_code)
+    JOIN
+      `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+      USING (product_code)
+    WHERE
+      quantity > 0
+      AND expected_delivery_date < CURRENT_DATE()
+      AND pha.ordering = 'Y'
+    GROUP BY
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+  ),
+  ct1 AS (
+    SELECT
+      product_code,
+      loc_code,
+      SUM(
+        CASE
+          WHEN
+            fiscal_year_week IN (
+              SELECT DISTINCT fiscal_year_week
+              FROM `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+              WHERE
+                calendar_date
+                BETWEEN CURRENT_DATE()
+                AND DATE_ADD(CURRENT_DATE(), INTERVAL 3 WEEK)
+            )
+            THEN (oo + it)
+          ELSE 0
+          END) AS order_qty_four_weeks
+    FROM
+      `{Project ID}.{Dataset}.oms_po_master` a
+    WHERE pseudo_po IS NULL
+    GROUP BY
+      1, 2
+  ),
+  base AS (
+    SELECT
+      product_code,
+      vendor_code,
+      vendor_name,
+      lr.loc_code,
+      channel,
+      article,
+      style,
+      size,
+      po_id,
+      order_date,
+      projected_delivery_date,
+      total_order_qty,
+      total_received_qty,
+      late_order_qty,
+      COALESCE(order_qty_four_weeks, 0) AS order_qty_four_weeks
+    FROM
+      late_orders lr
+    LEFT JOIN
+      ct1
+      USING (product_code, loc_code)
+  )
+SELECT DISTINCT
+  b.po_id,
+  b.product_code,
+  b.style,
+  b.article,
+  b.size,
+  b.channel,
+  b.loc_code,
+  b.vendor_code,
+  b.vendor_name,
+  b.order_date,
+  b.projected_delivery_date,
+  COALESCE(inv.total_inv, 0) AS dc_oh,
+  b.total_order_qty,
+  ROUND(b.total_order_qty * ROUND(pm.cost, 2), 0) AS total_order_cost,
+  b.total_received_qty,
+  ROUND(b.total_received_qty * ROUND(pm.cost, 2), 0) AS total_received_cost,
+  b.late_order_qty,
+  ROUND(b.late_order_qty * ROUND(pm.cost, 2), 0) AS late_order_cost,
+  b.order_qty_four_weeks,
+  ROUND(b.order_qty_four_weeks * ROUND(pm.cost, 2), 0) AS order_cost_four_weeks
+FROM
+  base b
+JOIN
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+  USING (product_code)
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+LEFT JOIN
+  (
+    SELECT i.*, sm.channel
+    FROM `{Project ID}.{Dataset}.oms_latest_inventory` i
+    LEFT JOIN `{Project ID}.{Dataset}.store_master` sm
+      ON i.loc_code = sm.store_code
+    WHERE special_classification = 'WHS'
+  ) inv
+  ON
+    b.product_code = inv.product_code
+    AND b.loc_code = inv.loc_code
+WHERE
+  pha.ordering = 'Y'","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_orders_recommended_archive,1,,"BEGIN
+  INSERT INTO `{Project ID}.{Dataset}.oms_orders_recommended_archive`
+SELECT a.*
+FROM {Project ID}.{Dataset}.oms_orders_recommended a
+LEFT JOIN
+  {Project ID}.{Dataset}.oms_orders_recommended_archive b
+  USING (
+    order_gen_type,
+    article,
+    size,
+    product_code,
+    loc_code,
+    channel,
+    order_placement_date_original)
+WHERE b.article IS NULL AND a.order_status_id = 3;
+
+DELETE FROM `{Project ID}.{Dataset}.oms_orders_recommended_archive`
+WHERE
+  CONCAT(
+    product_code,
+    loc_code,
+    channel,
+    CAST(order_placement_date AS STRING),
+    CAST(order_placement_recom_date AS STRING),
+    order_gen_type)
+  IN (
+    WITH
+      actual_po AS (
+        SELECT
+          CONCAT(
+            product_code,
+            '-',
+            loc_code,
+            '-',
+            COALESCE(channel, '-'),
+            '-',
+            CAST(DATE(projected_delivery_date) AS STRING)) AS po_detail_id,
+          CONCAT(product_code, '-', loc_code, '-', COALESCE(channel, '-'))
+            AS po_detail_id_key,
+          opm.*
+        FROM
+          `{Project ID}.{Dataset}.oms_po_master` AS opm
+        JOIN
+          `{Project ID}.{Dataset}.oms_sku_hierarchy` AS paf
+          USING (product_code)
+        WHERE
+          po_id <> '-'
+      ),
+      pseudo_po AS (
+        SELECT
+          CONCAT(
+            product_code,
+            '-',
+            loc_code,
+            '-',
+            COALESCE(channel, '-'),
+            '-',
+            CAST(DATE(editable_expected_receipt_date) AS STRING))
+            AS po_detail_id,
+          CONCAT(product_code, '-', loc_code, '-', COALESCE(channel, '-'))
+            AS po_detail_id_key,
+          ooa.*
+        FROM
+          `{Project ID}.{Dataset}.oms_orders_recommended_archive`
+            AS ooa
+        WHERE order_status_id = 3
+      )
+    SELECT DISTINCT
+      CONCAT(
+        product_code,
+        loc_code,
+        channel,
+        CAST(order_placement_date AS STRING),
+        CAST(order_placement_recom_date AS STRING),
+        order_gen_type)
+    FROM
+      (
+        SELECT DISTINCT
+          pp.*,
+          COALESCE(oclt.po_to_order_processing, 1) AS po_to_order_processing,
+          DATE_DIFF(CURRENT_DATE(), DATE(order_placement_date), DAY) AS days_since_approved,
+          DATE(ap.projected_delivery_date) AS projected_delivery_date,
+          ap.po_detail_id_key AS po_detail_id_key_actual_po,
+          DATE(pp.editable_expected_receipt_date)
+            AS editable_expected_receipt_date_final,
+          pp.po_detail_id_key AS po_detail_id_key_pseudo_po,
+          CASE
+            WHEN ap.po_detail_id IS NOT NULL THEN 1
+            ELSE 0
+            END AS po_flag
+        FROM
+          pseudo_po AS pp
+        LEFT JOIN
+          actual_po AS ap
+          ON
+            ap.po_detail_id_key = pp.po_detail_id_key
+            AND DATE_DIFF(
+              DATE(ap.projected_delivery_date),
+              DATE(pp.editable_expected_receipt_date),
+              DAY)
+              BETWEEN -7 AND 7
+        LEFT JOIN
+          `{Project ID}.{Dataset}.oms_constraints_lead_time`
+            AS oclt
+          USING (article)
+      ) AS base
+    WHERE
+      days_since_approved > po_to_order_processing
+      OR po_flag = 1
+  );
+
+END","Historic and Periodic versions are same. 
+This is a routine in GBQ"
+dc_split_ratio,1,,"WITH
+  final_data AS (
+    SELECT
+      a.article,
+      a.product_code,
+      size,
+      linked_store_code AS loc_code,
+      a.fiscal_year_week,
+      SUM(overall_proportion) AS aggregated_proportion,
+    FROM
+      `{Project ID}.{Dataset}.oms_product_profile_weeks` a
+    JOIN
+      `{Project ID}.{Dataset}.oms_sku_store_eligibility` b
+      USING (
+        product_code,
+        store_code,
+        fiscal_year_week)
+    JOIN
+      `{Project ID}.{Dataset}.store_dc_mapping` sdm
+      USING (store_code)
+    JOIN
+      `{Project ID}.{Dataset}.distribution_centres` dc
+      USING (dc_code)
+    JOIN
+      `{Project ID}.{Dataset}.dc_transit_time_mapping` dtt
+      USING (mapping_code)
+    JOIN
+      `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+      ON
+        a.product_code = pha.product_code
+        AND pha.ordering = 'Y'
+    WHERE
+      sdm.is_active = TRUE
+      AND dtt.priority=1
+    GROUP BY
+      1,
+      2,
+      3,
+      4,
+      5
+  ),
+  proportions AS (
+    SELECT DISTINCT
+      fiscal_year_week,
+      product_code,
+      article,
+      size,
+      loc_code,
+      aggregated_proportion,
+      SUM(COALESCE(aggregated_proportion, 0))
+        OVER (PARTITION BY fiscal_year_week, article, loc_code)
+        AS total_proportion
+    FROM
+      final_data
+  ),
+  normalized AS (
+    SELECT DISTINCT
+      fiscal_year_week,
+      article,
+      product_code,
+      size,
+      loc_code,
+      aggregated_proportion,
+      total_proportion,
+      CASE
+        WHEN total_proportion = 0 THEN 0
+        ELSE COALESCE(aggregated_proportion / total_proportion, 0)
+        END
+        AS normalized_proportion
+    FROM
+      proportions
+  )
+SELECT
+  article,
+  product_code,
+  size,
+  loc_code,
+  '-' AS channel,
+  fiscal_year_week,
+  normalized_proportion AS penetration
+FROM
+  normalized
+GROUP BY
+  ALL
+ORDER BY
+  loc_code,
+  article,
+  size;","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_universal_forecast,1,,"WITH
+  product_store_dc AS (
+    SELECT
+      ppw.product_code,
+      ppw.store_code,
+      dc.linked_store_code AS dc_code
+    FROM
+      `{Project ID}.{Dataset}.oms_product_profile_weeks` ppw
+    JOIN
+      `{Project ID}.{Dataset}.store_dc_mapping` sdm
+      USING (store_code)
+    JOIN
+      `{Project ID}.{Dataset}.distribution_centres` dc
+      USING (dc_code)
+    JOIN
+      `{Project ID}.{Dataset}.dc_transit_time_mapping` dtt
+      USING (mapping_code)
+    WHERE dc.is_active AND sdm.is_active AND dtt.priority=1
+  ),
+  product_profile AS (
+    SELECT
+      ppw.product_code,
+      psd.dc_code,
+      ppw.store_code,
+      channel,
+      article,
+      fiscal_year_week,
+      size_level_proportion,
+      overall_proportion,
+      overall_channel_proportion
+    FROM
+      `{Project ID}.{Dataset}.oms_product_profile_weeks` ppw
+    JOIN
+      `{Project ID}.{Dataset}.store_master` sm
+      USING (store_code)
+    LEFT JOIN
+      product_store_dc psd
+      ON
+        ppw.product_code = psd.product_code
+        AND ppw.store_code = psd.store_code
+  )
+SELECT
+  product_code,
+  pp.store_code,
+  dc_code AS loc_code,
+  '-' AS channel,
+  fiscal_year_week,
+  COALESCE(fs.future_sales_units * pp.overall_channel_proportion, 0)
+    AS predicted_qty,
+FROM
+  product_profile pp
+LEFT JOIN
+  `{Project ID}.{Dataset}.oms_future_sales_units` fs
+  USING (
+    article,
+    channel,
+    fiscal_year_week)
+GROUP BY 1, 2, 3, 4, 5, 6","Historic and Periodic versions are same. 
+This is a full replace table."
+po_rebalance_base,1,,Query will be coming soon,
+oms_otb,1,,"WITH
+  lf AS (
+    SELECT
+      article,
+      loc_code,
+      channel,
+      fiscal_year_week,
+      total_receipt_units AS mfp_units
+    FROM
+      `{Project ID}.{Dataset}.oms_lf_master` lf
+  ),
+  wp AS (
+    SELECT
+      article,
+      loc_code,
+      channel,
+      fiscal_year_week,
+      total_receipt_units AS mfp_units
+    FROM
+      `{Project ID}.{Dataset}.oms_wp_master` wp
+  ),
+  op AS (
+    SELECT
+      article,
+      loc_code,
+      channel,
+      fiscal_year_week,
+      total_receipt_units AS mfp_units
+    FROM
+      `{Project ID}.{Dataset}.oms_op_master` op
+  ),
+  eligible_styles AS (
+    SELECT DISTINCT
+      article,
+      fiscal_year_week,
+      week_start_date - lead_time AS order_placement_date
+    FROM
+      `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+    JOIN
+      `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+      USING (product_code)
+    JOIN
+      `{Project ID}.{Dataset}.oms_constraints_lead_time` olt
+      USING (article)
+    CROSS JOIN
+      (
+        SELECT DISTINCT
+          fiscal_year_week,
+          week_start_date
+        FROM
+          `{Project ID}.{Dataset}.oms_fiscal_date_mapping`
+        WHERE
+          calendar_date
+          BETWEEN CURRENT_DATE
+          AND DATE_ADD(CURRENT_DATE, INTERVAL 103 WEEK)
+      )
+    WHERE
+      pha.ordering = 'Y'
+  ),
+  base AS (
+    SELECT DISTINCT
+      article,
+      loc_code,
+      COALESCE(a.channel, b.channel, c.channel)
+        AS channel,
+      COALESCE(a.fiscal_year_week, b.fiscal_year_week, c.fiscal_year_week)
+        AS fiscal_year_week_receipt,
+      fdm.fiscal_year_week,
+      COALESCE(a.mfp_units, b.mfp_units, c.mfp_units, 0) AS mfp_units
+    FROM
+      eligible_styles e
+    LEFT JOIN
+      lf a
+      ON
+        e.article = a.article
+        AND e.fiscal_year_week = a.fiscal_year_week
+    LEFT JOIN
+      op b
+      ON
+        e.article = b.article
+        AND e.fiscal_year_week = b.fiscal_year_week
+        AND a.article IS NULL
+    LEFT JOIN
+      wp c
+      ON
+        e.article = b.article
+        AND e.fiscal_year_week = c.fiscal_year_week
+        AND a.article IS NULL
+        AND b.article IS NULL
+    JOIN
+      `{Project ID}.{Dataset}.oms_fiscal_date_mapping` fdm
+      ON
+        fdm.calendar_date = e.order_placement_date
+  ),
+  po_units AS (
+    SELECT
+      COALESCE(sm.parent_sku, pm.product_code) AS product_code,
+      loc_code,
+      channel,
+      fiscal_year_week,
+      SUM(oo + it + IFNULL(pseudo_po, 0)) AS po_receipts
+    FROM
+      `{Project ID}.{Dataset}.oms_po_master` pm
+    LEFT JOIN
+      `{Project ID}.{Dataset}.oms_supersession_mapping` sm
+      ON
+        sm.child_sku = pm.product_code
+        AND CURRENT_DATE()
+          BETWEEN from_date
+          AND to_date
+    GROUP BY
+      1,
+      2,
+      3,
+      4
+  ),
+  po_style_units AS (
+    SELECT
+      article,
+      loc_code,
+      channel,
+      fiscal_year_week,
+      SUM(po_receipts) AS style_po_receipts
+    FROM
+      (
+        SELECT
+          po.*,
+          pm.article
+        FROM
+          po_units po
+        JOIN
+          `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+          USING (product_code)
+      )
+    GROUP BY
+      1,
+      2,
+      3,
+      4
+  ),
+  otb_style AS (
+    SELECT
+      b.article,
+      b.loc_code,
+      b.channel,
+      b.fiscal_year_week_receipt,
+      b.fiscal_year_week,
+      b.mfp_units,
+      (mfp_units - COALESCE(style_po_receipts, 0)) AS otb_style
+    FROM
+      base b
+    LEFT JOIN
+      po_style_units ps
+      ON
+        b.article = ps.article
+        AND b.fiscal_year_week_receipt = ps.fiscal_year_week
+        AND b.loc_code = ps.loc_code
+  )
+SELECT
+  d.product_code,
+  b.loc_code,
+  b.channel,
+  b.fiscal_year_week,
+  b.fiscal_year_week_receipt,
+  ROUND(mfp_units * penetration, 2) AS mfp_units,
+  CAST(NULL AS FLOAT64) AS approved_otb,
+  GREATEST(ROUND(otb_style * penetration, 2), 0) AS otb,
+  CAST(NULL AS FLOAT64) AS total_units,
+  CAST(NULL AS FLOAT64) AS recom_receipts
+FROM
+  otb_style b
+JOIN
+  `{Project ID}.{Dataset}.dc_split_ratio` d
+  ON
+    b.article = d.article
+    AND b.loc_code = d.loc_code
+    AND b.fiscal_year_week_receipt = d.fiscal_year_week",
+oms_cycle_multiplier,1,,"WITH
+  freq AS (
+    SELECT
+      'bi-monthly' AS order_frequency,
+      'bi-monthly' AS shipment_frequency,
+      1 AS multiplier
+    UNION ALL
+    SELECT
+      'bi-monthly' AS order_frequency,
+      'monthly' AS shipment_frequency,
+      2 AS multiplier
+    UNION ALL
+    SELECT
+      'bi-monthly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      8 AS multiplier
+    UNION ALL
+    SELECT
+      'halfyearly' AS order_frequency,
+      'bi-monthly' AS shipment_frequency,
+      3 AS multiplier
+    UNION ALL
+    SELECT
+      'halfyearly' AS order_frequency,
+      'halfyearly' AS shipment_frequency,
+      1 AS multiplier
+    UNION ALL
+    SELECT
+      'halfyearly' AS order_frequency,
+      'monthly' AS shipment_frequency,
+      6 AS multiplier
+    UNION ALL
+    SELECT
+      'halfyearly' AS order_frequency,
+      'quarterly' AS shipment_frequency,
+      2 AS multiplier
+    UNION ALL
+    SELECT
+      'halfyearly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      26 AS multiplier
+    UNION ALL
+    SELECT
+      'monthly' AS order_frequency,
+      'monthly' AS shipment_frequency,
+      1 AS multiplier
+    UNION ALL
+    SELECT
+      'monthly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      4 AS multiplier
+    UNION ALL
+    SELECT
+      'quarterly' AS order_frequency,
+      'monthly' AS shipment_frequency,
+      3 AS multiplier
+    UNION ALL
+    SELECT
+      'quarterly' AS order_frequency,
+      'quarterly' AS shipment_frequency,
+      1 AS multiplier
+    UNION ALL
+    SELECT
+      'quarterly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      12 AS multiplier
+    UNION ALL
+    SELECT
+      'weekly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      1 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'bi-monthly' AS shipment_frequency,
+      6 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'halfyearly' AS shipment_frequency,
+      2 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'monthly' AS shipment_frequency,
+      12 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'quarterly' AS shipment_frequency,
+      3 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'weekly' AS shipment_frequency,
+      52 AS multiplier
+    UNION ALL
+    SELECT
+      'yearly' AS order_frequency,
+      'yearly' AS shipment_frequency,
+      1 AS multiplier
+  )
+SELECT 
+    *
+FROM 
+    freq
+ORDER BY 
+    freq.order_frequency, freq.shipment_frequency;",This is a one time table
+oms_vendor_closure,1,,"SELECT DISTINCT
+  vendor_code,
+  vendor_name,
+  CAST(NULL AS DATE) AS vc_start_date,
+  CAST(NULL AS DATE) AS vc_end_date
+FROM 
+  `{Project ID}.{Dataset}.oms_sku_hierarchy`",This is a one time table
+oms_sl_coeff,1,,"WITH
+  oms_sl_coeff AS (
+    SELECT * FROM UNNEST(
+      [
+        STRUCT(0.50 AS service_level, 0.000000 AS coeff),
+        STRUCT(0.51 AS service_level, 0.025069 AS coeff),
+        STRUCT(0.52 AS service_level, 0.050154 AS coeff),
+        STRUCT(0.53 AS service_level, 0.075270 AS coeff),
+        STRUCT(0.54 AS service_level, 0.100434 AS coeff),
+        STRUCT(0.55 AS service_level, 0.125661 AS coeff),
+        STRUCT(0.56 AS service_level, 0.150969 AS coeff),
+        STRUCT(0.57 AS service_level, 0.176374 AS coeff),
+        STRUCT(0.58 AS service_level, 0.201893 AS coeff),
+        STRUCT(0.59 AS service_level, 0.227545 AS coeff),
+        STRUCT(0.60 AS service_level, 0.253347 AS coeff),
+        STRUCT(0.61 AS service_level, 0.279319 AS coeff),
+        STRUCT(0.62 AS service_level, 0.305481 AS coeff),
+        STRUCT(0.63 AS service_level, 0.331853 AS coeff),
+        STRUCT(0.64 AS service_level, 0.358459 AS coeff),
+        STRUCT(0.65 AS service_level, 0.385320 AS coeff),
+        STRUCT(0.66 AS service_level, 0.412463 AS coeff),
+        STRUCT(0.67 AS service_level, 0.439913 AS coeff),
+        STRUCT(0.68 AS service_level, 0.467699 AS coeff),
+        STRUCT(0.69 AS service_level, 0.495850 AS coeff),
+        STRUCT(0.70 AS service_level, 0.524401 AS coeff),
+        STRUCT(0.71 AS service_level, 0.553385 AS coeff),
+        STRUCT(0.72 AS service_level, 0.582842 AS coeff),
+        STRUCT(0.73 AS service_level, 0.612813 AS coeff),
+        STRUCT(0.74 AS service_level, 0.643345 AS coeff),
+        STRUCT(0.75 AS service_level, 0.674490 AS coeff),
+        STRUCT(0.76 AS service_level, 0.706303 AS coeff),
+        STRUCT(0.77 AS service_level, 0.738847 AS coeff),
+        STRUCT(0.78 AS service_level, 0.772193 AS coeff),
+        STRUCT(0.79 AS service_level, 0.806421 AS coeff),
+        STRUCT(0.80 AS service_level, 0.841621 AS coeff),
+        STRUCT(0.81 AS service_level, 0.877896 AS coeff),
+        STRUCT(0.82 AS service_level, 0.915365 AS coeff),
+        STRUCT(0.83 AS service_level, 0.954165 AS coeff),
+        STRUCT(0.84 AS service_level, 0.994458 AS coeff),
+        STRUCT(0.85 AS service_level, 1.036433 AS coeff),
+        STRUCT(0.86 AS service_level, 1.080319 AS coeff),
+        STRUCT(0.87 AS service_level, 1.126391 AS coeff),
+        STRUCT(0.88 AS service_level, 1.174987 AS coeff),
+        STRUCT(0.89 AS service_level, 1.226528 AS coeff),
+        STRUCT(0.90 AS service_level, 1.281552 AS coeff),
+        STRUCT(0.91 AS service_level, 1.340755 AS coeff),
+        STRUCT(0.92 AS service_level, 1.405072 AS coeff),
+        STRUCT(0.93 AS service_level, 1.475791 AS coeff),
+        STRUCT(0.94 AS service_level, 1.554774 AS coeff),
+        STRUCT(0.95 AS service_level, 1.644854 AS coeff),
+        STRUCT(0.96 AS service_level, 1.750686 AS coeff),
+        STRUCT(0.97 AS service_level, 1.880794 AS coeff),
+        STRUCT(0.98 AS service_level, 2.053749 AS coeff),
+        STRUCT(0.99 AS service_level, 2.326348 AS coeff)])
+  )
+SELECT
+  service_level,
+  coeff
+FROM
+  oms_sl_coeff;",This is a one time table
+oms_events_and_holidays,1,,"SELECT
+  {Country Column} AS region
+FROM `bigquery-public-data.ml_datasets.holidays_and_events_for_forecasting` a
+JOIN {Project ID}.{Dataset}.store_master b
+  ON a.region = b.{Region Column}",This is a one time table
+oms_hierarchy_constraints,1,,"SELECT DISTINCT
+  l0_name,
+  l1_name,
+  article, -- You can fetch the hierarchies which are required in Add RCL screen of Vendor Constraints Module
+  '{Level of Application}' AS level_of_application,
+  {Order Multiple} AS order_multiple,
+  {Minimum Replenishment Quantity} AS min_replenishment_quantity,
+  {Maximum Replenishment Quantity} AS max_replenishment_quantity,
+  'Monthly' AS moq_interval,
+  {MOQ Tolerance} AS moq_tolerance,
+  '-' AS moq_start_month,
+  NULL AS rule_name
+FROM
+  `{Project ID}.{Dataset}.oms_sku_hierarchy` pm
+JOIN
+  `{Project ID}.{Dataset}.oms_product_hybrid_attributes` pha
+  USING (product_code)
+WHERE
+  pha.ordering = 'Y'","This is a one time table
+If client shares vendor constraints feed in a recurring manner, this will be a derived table and you can include the client table in the query instead of using defaults"
+oms_constraint_master,1,,"WITH
+  bse AS (
+    SELECT
+      rulename,
+      CONCAT(
+        CASE
+          WHEN l2_name IS NULL OR l2_name = '' THEN ''
+          ELSE CONCAT('l2_name::', l2_name, ';;')
+          END,
+        CASE
+          WHEN l3_name IS NULL OR l3_name = '' THEN ''
+          ELSE CONCAT('l3_name::', l3_name, ';;')
+          END,
+        CASE
+          WHEN article IS NULL OR article = '' THEN ''
+          ELSE CONCAT('article::', article, ';;')
+          END) AS hierarchy,
+      CONCAT(
+        CASE
+          WHEN l2_name IS NULL OR l2_name = '' THEN ''
+          ELSE 'l2_name,'
+          END,
+        CASE
+          WHEN l3_name IS NULL OR l3_name = '' THEN ''
+          ELSE 'l3_name,'
+          END,
+        CASE
+          WHEN article IS NULL OR article = '' THEN ''
+          ELSE 'article,'
+          END) AS level_column,  -- You can add the hierarchies which are required in Add RCL screen of Vendor Constraints Module 
+      min_replenishment_quantity,
+      max_replenishment_quantity,
+      moq_interval,
+      moq_tolerance,
+      moq_start_month,
+      order_multiple,
+      level_of_application
+    FROM
+      (
+        SELECT
+          rule_name AS rulename,
+          l2_name,
+          l3_name,
+          article,
+          min_replenishment_quantity,
+          max_replenishment_quantity,
+          moq_interval,
+          moq_tolerance,
+          moq_start_month,
+          order_multiple,
+          level_of_application,
+          COUNT(*) OVER (PARTITION BY l2_name, l3_name, article) cnt
+        FROM
+          `{Project ID}.{Dataset}.oms_hierarchy_constraints`
+      )
+    WHERE
+      cnt = 1
+  ),
+  ranked_bse AS (
+    SELECT
+      *,
+      ROW_NUMBER() OVER (PARTITION BY hierarchy ORDER BY hierarchy) AS row_num
+    FROM
+      bse
+  )
+SELECT DISTINCT
+  rcl_code,
+  CASE
+    WHEN RIGHT(hierarchy, 2) = ';;'
+      THEN SUBSTRING(hierarchy, 1, LENGTH(hierarchy) - 2)
+    ELSE hierarchy
+    END
+    AS rcl_dimension,
+  a.level,
+  CAST(rulename AS string) AS rule_name,
+  CAST('2000-01-01' AS date) AS start_date,
+  CAST('2050-01-01' AS date) AS end_date,
+  min_replenishment_quantity,
+  max_replenishment_quantity,
+  moq_interval,
+  moq_tolerance,
+  moq_start_month,
+  order_multiple,
+  level_of_application
+FROM
+  (
+    SELECT
+      *,
+      CASE
+        WHEN RIGHT(level_column, 1) = ','
+          THEN SUBSTRING(level_column, 1, LENGTH(level_column) - 1)
+        ELSE level_column
+        END
+        AS level
+    FROM
+      ranked_bse
+    WHERE
+      row_num = 1
+      AND level_column <> ''
+  ) a
+JOIN
+  `{Project ID}.{Dataset}.rcl_priority_mapping`
+USING
+  (level)",This is a one time table
+product_profile_user_mapping_size,1,,"SELECT
+  pp_code,
+  l0_name,
+  size_level_proportion,
+  overall_proportion,
+  size,
+  store_code
+FROM 
+  inventory_smart.product_profile_user_mapping_size ppum;",This is a backsync table
+oms_dc_reserve_qty,1,,"SELECT
+  product_code,
+  pack_type_id AS pack_id,
+  article,
+  dc_code AS loc_code,
+  channel,
+  'U' AS type,
+  sum(coalesce(quantity, 0) * coalesce(units_in_pack, 1)) AS quantity,
+  is_reserved,
+  reservation_till_date
+FROM inventory_smart.dc_pack_reserve_quantity dprc
+INNER JOIN inventory_smart.dc_pack_configuration dpc
+  USING (article, pack_type_id)
+JOIN
+  global.distribution_centres dc
+  USING (dc_code)
+WHERE reservation_till_date >= current_date
+GROUP BY 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12;",This is a backsync table
+resolved_product_profile,1,,"SELECT
+  f.product_code,
+  paf.style,
+  channel,
+  LOWER(rdsp.validity) AS start_date,
+  UPPER(rdsp.validity) AS end_date,
+  rdsp.rule_code,
+  f.default_product_profile AS pp_code,
+  DATE(rdsp.created_at) AS created_at
+FROM
+  inventory_smart.generate_rcl_dc_store_policy(
+    '( SELECT DISTINCT product_code FROM global.product_attributes_filter paf JOIN global.product_time_attributes pta USING (product_code) JOIN ( SELECT DISTINCT article FROM inventory_smart.dc_pack_inventory dpi) dpi USING (article) WHERE paf.active = TRUE AND current_date BETWEEN pta.start_time AND pta.end_time AND current_date >= paf.launch_date)',
+    10003,
+    current_date)
+    f
+LEFT JOIN
+  inventory_smart.rcl_dc_store_policy rdsp
+  ON
+    f.rcl_dc_store_policy_code = rdsp.rcl_dc_store_policy_code
+JOIN
+  global.product_attributes_filter paf
+  USING (product_code)",This is a backsync table
+rcl_week_level_constraint_data,1,,"/*Run generate_all_week_level_rcl_constraint_data before backsyncing this table*/
+SELECT
+  l0_name,
+  rcl_code,
+  priority,
+  fiscal_week_begin_date,
+  fiscal_year_week,
+  rule_code,
+  psa_code,
+  CAST(product_codes AS text),
+  wos,
+  transit_time,
+  safety_stock,
+  min_stock,
+  max_stock,
+  aps,
+  ros,
+  st,
+  CAST(store_codes AS text)
+FROM public.rcl_week_level_constraint_data rwlcd;",This is a backsync table
+oms_constraints_vendor_moq,1,,"SELECT
+  a.product_code,
+  a.choice AS article,
+  a.choice,
+  a.level_of_application,
+  CAST(b.rcl_dimension AS text),
+  a.rcl_code,
+  c.priority,
+  a.min_replenishment_quantity,
+  a.max_replenishment_quantity,
+  a.order_multiple,
+  a.moq_tolerance,
+  a.pack_selection
+FROM public.final_oms_resolved_table a
+JOIN inventory_smart.rcl_oms_constraint_master_rule b
+  USING (rcl_code, rule_code)
+JOIN global.rcl_master c
+  USING (rcl_code)
+JOIN global.product_attributes_filter d
+  USING (product_code)",This is a backsync table
+oms_orders_recommended,1,,"SELECT
+  order_group_id,
+  order_batch_name,
+  order_gen_type,
+  product_code,
+  style,
+  size,
+  loc_code,
+  channel,
+  article,
+  vendor_code,
+  vendor_name,
+  rop,
+  grade,
+  order_quantity,
+  order_cost,
+  unit_cost,
+  roq_constrained,
+  raw_roq,
+  ia_shipment_order_quantity,
+  roq_unconstrained,
+  order_placement_date,
+  order_placement_recom_date,
+  fiscal_year_week,
+  fiscal_year_month,
+  fiscal_year,
+  fiscal_year_quarter,
+  week_start_date,
+  ""month"",
+  expected_receipt_date,
+  rop_ideal,
+  mode_shipment,
+  lead_time,
+  order_to_po_processing_time,
+  effective_lead_time,
+  min_order_quantity_shipment,
+  min_order_quantity_sku,
+  min_order_quantity_style,
+  max_order_quantity_shipment,
+  max_order_quantity_sku,
+  max_order_quantity_style,
+  order_multiple,
+  inventory_hold,
+  order_status_id,
+  created_by,
+  created_at,
+  updated_by,
+  updated_at,
+  approve_by_date,
+  is_deleted,
+  is_resolved,
+  recom_receipt_date,
+  create_by_date,
+  editable_expected_receipt_date,
+  lost_sales_agg,
+  inventory_deficit_agg,
+  orders_upto_qty,
+  elt_projected_bop,
+  elt_projected_safety_stock,
+  order_type,
+  target_qty,
+  lost_sales_agg_1,
+  forecasted_sales,
+  target_wos,
+  lost_sales_agg_2,
+  excess_inv,
+  unmapped_store_inventory,
+  store_groups,
+  store_counts,
+  flow_id,
+  immd_roq,
+  order_reason,
+  order_placement_date_original
+FROM inventory_smart.oms_orders_recommended;",This is a backsync table
+oms_orders_approved,1,,"SELECT
+  order_gen_type,
+  product_code,
+  loc_code,
+  vendor_code,
+  rop,
+  grade,
+  order_quantity,
+  unit_cost,
+  order_cost,
+  roq_constrained,
+  roq_unconstrained,
+  order_placement_date,
+  order_placement_recom_date,
+  expected_receipt_date,
+  rop_ideal,
+  lead_time,
+  effective_lead_time,
+  store_inv,
+  dc_inv,
+  system_inv,
+  mrpc,
+  min_order_quantity_sku,
+  max_order_quantity,
+  order_multiple,
+  inventory_hold,
+  order_status_id,
+  created_by,
+  created_at,
+  updated_by,
+  updated_at,
+  edit_by_date,
+  is_deleted,
+  comment,
+  article,
+  size,
+  channel,
+  min_order_quantity_style,
+  editable_expected_receipt_date,
+  min_order_quantity_shipment,
+  max_order_quantity_sku,
+  max_order_quantity_style,
+  order_type,
+  raw_roq,
+  order_batch_name,
+  reconciliation_id
+FROM inventory_smart.oms_orders_approved
+WHERE is_deleted IS FALSE;",This is a backsync table
+rcl_priority_mapping,1,GBQ,"INSERT INTO `{Project ID}.{Dataset}.rcl_priority_mapping`
+SELECT
+  level,
+  rcl_priority,
+  7001 AS module_code
+FROM
+  `{Project ID}.{Dataset}.rcl_priority_mapping`
+WHERE
+  module_code = 10003;",This query should run in GBQ. This is a one time job
+rcl_priority_mapping,2,Postgresql,"INSERT INTO global.rcl_priority_mapping
+SELECT
+  level,
+  rcl_priority,
+  7001 AS module_code
+FROM
+  global.rcl_priority_mapping
+WHERE
+  module_code = 10003;",This query should run in DB. You can raise a custom migration pr for this table. This is a one time job
+rcl_oms_constraint_master_rule,1,,"CREATE TABLE oms.rcl_oms_constraint_master_rule (
+	rule_code serial4 NOT NULL,
+	rcl_code int4 NOT NULL,
+	rcl_dimension jsonb DEFAULT '{}'::jsonb NOT NULL,
+	rule_name varchar(256) NULL,
+	CONSTRAINT oms_constraint_rule_pk PRIMARY KEY (rcl_code, rule_code),
+	CONSTRAINT rcl_osm_constraint_master_rcl_dimension_uk UNIQUE (rcl_code, rcl_dimension),
+	CONSTRAINT rcl_oms_constraint_master_rule_fk FOREIGN KEY (rcl_code) REFERENCES ""global"".rcl_master(rcl_code) ON DELETE RESTRICT
+)
+PARTITION BY LIST (rcl_code);",We just need to create schema in DB
+rcl_oms_constraint_master,1,,"CREATE TABLE oms.rcl_oms_constraint_master (
+	rcl_oms_constraint_code serial4 NOT NULL,
+	rcl_code int4 NOT NULL,
+	rule_code int4 NOT NULL,
+	min_replenishment_quantity int4 DEFAULT 1 NOT NULL,
+	max_replenishment_quantity int4 DEFAULT 99999 NOT NULL,
+	moq_tolerance float8 DEFAULT 0.5 NOT NULL,
+	moq_interval varchar(256) NULL,
+	moq_start_month varchar(256) NULL,
+	order_multiple int4 DEFAULT 1 NOT NULL,
+	level_of_application varchar(256) NOT NULL,
+	validity daterange DEFAULT '[2000-01-01,2050-01-01)'::daterange NOT NULL,
+	created_at timestamptz NOT NULL,
+	created_by int4 NULL,
+	updated_at timestamptz NULL,
+	updated_by int4 NULL,
+	column_modified varchar(256) NULL,
+	max_replenishment_qty float8 NULL,
+	min_replenishment_qty float8 NULL,
+	pack_selection varchar(256) NULL,
+	rule_name varchar(256) NULL,
+	CONSTRAINT oms_unique_ps_rcl UNIQUE (rcl_code, rule_code, validity),
+	CONSTRAINT rcl_oms_constraint_master_created_by_fk FOREIGN KEY (created_by) REFERENCES ""global"".user_master(user_code) ON DELETE RESTRICT,
+	CONSTRAINT rcl_oms_constraint_master_rcl_oms_constraint_master_rule_fk FOREIGN KEY () REFERENCES <?>() ON DELETE CASCADE,
+	CONSTRAINT rcl_oms_constraint_master_updated_by_fk FOREIGN KEY () REFERENCES <?>() ON DELETE RESTRICT
+)
+PARTITION BY LIST (rcl_code);",We just need to create schema in DB
+oms_lf_master,1,,No Query Required,We have to raise Item Smart to OMS  integration ticket to populate this table
+oms_op_master,1,,No Query Required,We have to raise Item Smart to OMS  integration ticket to populate this table
+oms_wp_master,1,,No Query Required,We have to raise Item Smart to OMS  integration ticket to populate this table
+sync_product_hybrid_attributes,1,,"DROP PROCEDURE IF EXISTS public.sync_product_hybrid_attributes();
+
+CREATE OR REPLACE PROCEDURE public.sync_product_hybrid_attributes()
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $procedure$
+declare
+    _log_code varchar := gen_random_uuid();
+    _sp_name varchar := 'public.sync_product_hybrid_attributes';
+    _log_step varchar;
+    _st TIMESTAMP := clock_timestamp();
+begin
+    call global.data_ingestion_logs(_log_code, _sp_name, 'start', null, (clock_timestamp() - _st)::text, null);
+    perform set_config('local.log_code', _log_code, true);
+    perform set_config('local.sp_name', _sp_name, true);
+    begin
+UPDATE global.product_attributes_filter paf
+SET 
+    ordering = pha.ordering
+FROM oms.oms_product_hybrid_attributes pha
+WHERE paf.product_code = pha.product_code
+;
+        call global.data_ingestion_logs(_log_code, _sp_name, 'end', null, (clock_timestamp() - _st)::text, null);
+    exception
+        when others then
+            -- Log the error if an exception occurs during any part of the procedure
+            call global.data_ingestion_logs(_log_code, _sp_name, _log_step, SQLERRM, (clock_timestamp() - _st)::text, null);
+            raise exception 'Error occurred in the procedure: %', SQLERRM;
+    end;
+end
+$procedure$
+;",This is a sync sp
+sync_oms_rcl_constraints,1,,"DROP PROCEDURE IF EXISTS public.sync_oms_rcl_constraints();
+
+CREATE OR REPLACE PROCEDURE public.sync_oms_rcl_constraints()
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $procedure$
+declare
+	_log_code varchar := gen_random_uuid();
+	_sp_name varchar := 'public.sync_oms_rcl_constraints';
+	_log_step varchar;
+	_st TIMESTAMP := clock_timestamp();
+		_rcl_code int;
+		_rcl_dt text;
+		_rcl_jsonb text;
+		_sql text;
+    begin
+	call global.data_ingestion_logs(_log_code, _sp_name, 'start', null, (clock_timestamp() - _st)::text, null);
+	perform set_config('local.log_code', _log_code, true);
+	perform set_config('local.sp_name', _sp_name, true);
+	begin
+	    with cte as (
+			select r.rcl_code, r.level, rpm.rcl_priority
+			from (
+				select 
+					array_agg(rcl_dimension order by rcl_dimension)::varchar[] as level,
+					rcl_code 
+				from  (
+					select jsonb_object_keys(concat('{""',replace(replace(rcl_dimension,'::','"":""'),';;','"",""'),'""}')::jsonb) as  rcl_dimension,
+						   rcl_code
+					from public.oms_constraint_master 
+					group by 1,2
+				)b 
+				group by 2 
+			)r
+			join global.rcl_priority_mapping rpm using(level) 
+			where module_code = 7001
+		)
+		insert into global.rcl_master 
+			select
+				rcl_code,
+				7001,
+				""level"",
+				'{}',
+				'{[2022-07-01,2050-12-31)}',
+				rcl_priority,
+				false,
+				251,
+				null,
+				now(),
+				null 
+			from cte  
+			on conflict do nothing;
+	    for _rcl_code, _rcl_dt, _rcl_jsonb in 
+			select 
+				x.rcl_code,
+				string_agg(x.level || ' ' || y.generic_column_datatype, ', ') as _rcl_dt,
+				string_agg(quote_literal(x.level) || ', ' || x.level, ', ') as _rcl_jsonb
+			from (select rcl_code, unnest(level) as level from global.rcl_master) x 
+			join global.product_generic_schema_mapping y 
+			on x.level = y.generic_column_name 
+			group by 1 loop
+		execute '
+				create temp table rcl_oms_constraint_master_rule_' || _rcl_code || ' on commit drop as
+					    select rcl_code,
+					        rule_name,
+					        daterange(start_date, end_date) as validity,
+					        cast(min_replenishment_quantity as float4) as min_replenishment_quantity,
+					        cast(max_replenishment_quantity as float4) as max_replenishment_quantity,
+					        cast(order_multiple as float8) as order_multiple,
+					        cast(column_modified as varchar) as column_modified,
+					        cast(moq_interval as varchar) as moq_interval,
+					        cast(moq_tolerance as float4) as moq_tolerance,
+					        cast(moq_start_month as varchar) as moq_start_month,
+					        cast(level_of_application as varchar) as level_of_application,
+					         cast(pack_selection as varchar) as pack_selection,
+					        jsonb_build_object(' || _rcl_jsonb || ') as rcl_dimension from (
+						select concat(''{""'',
+				            replace(replace(rcl_dimension,
+				            ''::'',
+				            ''"":""''),
+				            '';;'',
+				            ''"",""''),
+				            ''""}'')::jsonb as rcl_dimension,
+							cast(rcl_code as int4) as rcl_code,
+							cast(null as varchar) as rule_name,
+							start_date::date as start_date,
+				            end_date::date as end_date,
+							cast(min_replenishment_quantity as float4) as min_replenishment_quantity,
+							cast(max_replenishment_quantity as float4) as max_replenishment_quantity,
+                            cast(order_multiple as float8) as order_multiple,
+                            cast(null as varchar(50)) as column_modified,
+							cast(moq_interval as varchar) as moq_interval,
+							cast(moq_tolerance as float4) as moq_tolerance,
+							cast(moq_start_month as varchar) as moq_start_month,
+							cast(level_of_application as varchar) as level_of_application,
+							pack_selection
+				   		from public.oms_constraint_master
+				        where rcl_code = ' || _rcl_code || '
+					) x, jsonb_to_record(rcl_dimension) as (' || _rcl_dt || ');';
+			execute '
+				insert
+	            into
+	            	oms.rcl_oms_constraint_master_rule (rcl_code, rule_name, rcl_dimension)
+		        select
+		            rcl_code,
+					rule_name,
+		            rcl_dimension
+		        from
+		            rcl_oms_constraint_master_rule_' || _rcl_code || '
+		        on conflict do nothing;';
+           
+           execute ' 
+					insert 
+					into 
+					oms.rcl_oms_constraint_master (rcl_code, 
+					rule_code, 
+					validity, 
+					min_replenishment_quantity, 
+					max_replenishment_quantity, 
+					order_multiple, 
+					moq_interval, 
+					moq_tolerance, 
+					moq_start_month, 
+					column_modified, 
+					level_of_application, 
+					pack_selection,
+					created_at,  
+					created_by 
+					) 
+					select 
+					rcl_code, 
+					rule_code, 
+					validity, 
+					min_replenishment_quantity , 
+					max_replenishment_quantity , 
+					order_multiple, 
+					moq_interval, 
+					cast(moq_tolerance as float4) as moq_tolerance, 
+					moq_start_month, 
+					column_modified,  
+					level_of_application, 
+					pack_selection,
+					now() as created_at, 
+					251 as created_by  
+					from rcl_oms_constraint_master_rule_' || _rcl_code || ' x 
+					join oms.rcl_oms_constraint_master_rule y 
+					using(rcl_code, rcl_dimension) 
+					on conflict do nothing;';
+	    end loop;
+		call global.data_ingestion_logs(_log_code, _sp_name, 'end', null, (clock_timestamp() - _st)::text, null);
+	exception
+		when others then
+	        -- Log the error if an exception occurs during any part of the procedure
+	        call global.data_ingestion_logs(_log_code, _sp_name, _log_step, SQLERRM, (clock_timestamp() - _st)::text, null);
+            raise exception 'Error occurred in the procedure: %', SQLERRM;
+	end;
+    end
+$procedure$
+;",This is a sync sp
+oms_constraints_status (Backsync),1,,select * from oms.oms_constraints_status,This is a backsync table
+oms_constraints_order_policy (Backsync),1,,select * from oms.oms_constraints_order_policy,This is a backsync table
+oms_constraints_lead_time (Backsync),1,,select * from oms.oms_constraints_lead_time,This is a backsync table
+oms_constraints_shipment (Backsync),1,,select * from oms.oms_constraints_shipment,This is a backsync table
+oms_constraints_safety_stock (Backsync),1,,select * from oms.oms_constraints_safety_stock,This is a backsync table
+auto_allocation_scheduler,1,,"SELECT
+  sh_code,
+  sh_name,
+  CAST(sh_structure AS text) AS sh_structure,
+  sh_frequency,
+  is_deleted,
+  created_by,
+  created_at,
+  updated_by,
+  updated_at,
+  is_deletable
+FROM inventory_smart.auto_allocation_scheduler;",This is a backsync table
+oms_inventory_master,1,,Query will be coming soon,"Historic and Periodic versions are same. 
+This is a full replace table."
+oms_sku_hierarchy,1,,"SELECT DISTINCT
+  product_code,
+  {Article} article,
+  {Style ID} style,
+  {Size} size,
+  {Vendor Name} vendor_name,
+  {Vendor ID} vendor_code,
+  {Unit Cost} cost,
+  {Hierarchy 1} l0_name,
+  {Hierarchy 2} l1_name,
+  {Hierarchy 3} l2_name,
+  {Hierarchy 4} l3_name,
+  {Hierarchy 5} l4_name,
+  {Hierarchy 6} l5_name
+FROM
+  `{Project ID}.{Dataset}.product_master` p","Historic and Periodic versions are same. 
+This is a full replace table."
+oms_delay_po_master,1,,Query will be coming soon,"Historic and Periodic versions are same. 
+This is a full replace table."
+oms_transaction_master,1,,Query will be coming soon,"Historic and Periodic versions are same. 
+This is a full replace table."

@@ -1,0 +1,170 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-menu {
+  .MuiPaper-root {
+    background: #fff;
+    border: 1px solid $menuBorderColor;
+    box-shadow: 0px 1px 6px 0px rgba(26, 39, 124, 0.14);
+    border-radius: 12px;
+    padding: 0 6px;
+    margin-top: 4px;
+  }
+  .MuiList-root {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .MuiButtonBase-root {
+    font-size: 14px;
+    color: $mainFontColor;
+    font-family: $fontFamily;
+    font-weight: $normalFontWeight;
+    line-height: 20px;
+    height: 35px;
+    padding: 0 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    &.Mui-focusVisible {
+      background-color: transparent;
+    }
+
+    &:hover {
+      background: #f5f6fa;
+      border-radius: 8px;
+      color: $mainFontColor;
+    }
+  }
+
+  .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root:has(.ia-list-sublabel) {
+    min-height: 56px !important;
+  }
+
+  .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.Mui-selected {
+    background-color: #eceefd;
+    border-radius: 8px;
+  }
+
+  .ia-list-body:has(.menu-section-header) {
+    gap: 6px;
+    padding-top: 4px;
+    border-top: 1px solid $textButtonPrimaryBg;
+  }
+
+  li:first-of-type {
+    :has(.menu-section-header) {
+      border-top: none;
+    }
+  }
+
+  li:has(.menu-section-header) {
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root.child-hover {
+    background: #f5f6fa;
+    border-radius: 8px;
+    color: $mainFontColor;
+  }
+
+  .ia-vertical-line {
+    min-width: 228px;
+    height: 0px;
+    border: 1px solid #f5f6fa;
+    flex: none;
+    align-self: stretch;
+    flex-grow: 0;
+  }
+
+  .ia-menu-action-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+    .ia-styles.ia-btn {
+      font-weight: 400;
+      height: 32px;
+      padding: 8px;
+    }
+    .ia-btn-contained {
+      color: #fff;
+      &:hover {
+        color: white;
+        background-color: #29399f;
+      }
+    }
+    .ia-btn-tertiary {
+      &:hover {
+        background-color: $lightBlueColor;
+        color: $secondaryColor;
+        border-color: $secondaryColor;
+        border-width: 1px;
+      }
+    }
+  }
+}
+
+.ia-menu-checkbox {
+  .MuiCheckbox-root.impact-checkbox-container {
+    height: 16px;
+    width: 16px;
+    margin-right: 0;
+    &:hover {
+      border-radius: 4px !important;
+      background: #ffffff;
+    }
+  }
+  .MuiCheckbox-root.default-variant.Mui-checked {
+    &:hover {
+      background: #eceefd url("../../assets/tick.svg") no-repeat;
+      background-size: 10px;
+      background-position: center;
+      border: 1px solid #4259ee;
+    }
+  }
+}
+
+.menu-section-header {
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  height: 35px;
+  color: $lightGrayColor;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.ia-list-icon {
+  min-width: auto !important;
+}
+
+.ia-section-icon {
+  min-width: 32px !important;
+}
+
+.ia-list-label-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.ia-list-sublabel {
+  font-size: 12px;
+  max-width: 7rem;
+  font-weight: 400;
+  color: $inputInfoColor; // Adjust as needed
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ia-list-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+}

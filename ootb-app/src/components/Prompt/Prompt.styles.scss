@@ -1,0 +1,107 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-prompt {
+  .MuiDialogContent-root {
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-bottom: 12px;
+
+    .MuiDialogContentText-root {
+      color: $textButtonFontColor;
+      font-size: $normalFontSize;
+      font-weight: $normalFontWeight;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $fontFamily;
+      width: 400px;
+      padding: 0 24px;
+      text-align: center;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+  }
+  .MuiDialog-paper {
+    min-width: 400px;
+    min-height: 224px;
+    box-shadow: 0px 0px 4px 0px #0000001f;
+    border-radius: 8px;
+    position: relative;
+
+    h2 {
+      padding: 0px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: $mediumFontSize;
+      font-weight: 800;
+      color: #0d152c;
+      margin-top: 8px;
+    }
+  }
+
+  .ia-prompt-close-button {
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 16px;
+    padding-top: 8px;
+  }
+
+  .ia-prompt-close-icon {
+    color: #60697d;
+  }
+
+  .ia-prompt-info-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    background-color: #eceefd;
+    background-image: url("../../assets/prompt-info-icon.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 12px;
+
+    &.ia-prompt-warning {
+      background: url("../../assets/prompt-warning-icon.svg");
+      background-color: #f6ebbf;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    &.ia-prompt-error {
+      background: url("../../assets/prompt-delete-icon.svg");
+      background-color: #fceeee;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    &.ia-prompt-success {
+      background: url("../../assets/prompt-success-icon.svg");
+      background-color: #ebf7f1;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
+
+  .MuiDialogActions-root {
+    gap: 12px;
+    padding: 16px;
+    justify-content: center;
+  }
+  .MuiDialogActions-root > :not(:first-of-type) {
+    margin-left: 0px;
+  }
+
+  .ia-styles.ia-btn.ia-btn-contained:focus {
+    outline: none;
+  }
+}

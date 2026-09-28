@@ -1,0 +1,6 @@
+key,label,team,sort_order
+Master,Master Tables,sourcing,1
+Derived,Derived Tables,ordering,2
+Backsync,Backsync Tables,dataflow,3
+AnR,AnR Tables,inv_smart,4
+ADA,ADA Tables,ada,5

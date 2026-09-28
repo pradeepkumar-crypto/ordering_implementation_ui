@@ -1,0 +1,64 @@
+@import "../../styles/index.scss";
+
+.impact_drawer_container_medium {
+  width: 375px;
+  height: 100%;
+}
+.impact_drawer_container_large {
+  width: 526px;
+  height: 100%;
+}
+.MuiBox-root {
+  width: auto;
+}
+
+.impact_drawer_container {
+  .impact_drawer_header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: $lightBlueColor;
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    align-items: center;
+    .impact_drawer_heading {
+      font-size: 16px;
+      font-weight: $BoldFontWeight;
+    }
+    .close_icon {
+      background: url("../../assets/close.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+  }
+
+  .impact_drawer_body {
+    z-index: 0;
+    position: relative;
+    padding: 16px;
+    overflow-y: auto;
+    height: calc(100% - 100px);
+    width: 100%;
+  }
+
+  .impact_drawer_footer {
+    position: absolute;
+    bottom: 0;
+    background: white;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 16px;
+    height: 56px;
+    border-top: 1px solid #d9dde7;
+    left: 0;
+    right: 0;
+  }
+}

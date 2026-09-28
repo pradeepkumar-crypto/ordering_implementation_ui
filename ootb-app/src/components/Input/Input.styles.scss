@@ -1,0 +1,263 @@
+@import "../../styles/index.scss";
+
+/* Input starts here  */
+.impact_inputbox_container label {
+  font-family: $fontFamily;
+  color: $textButtonFontColor;
+  font-size: 12px;
+  line-height: 18px;
+  margin-bottom: 6px;
+  font-weight: $normalFontWeight;
+}
+
+.impact_inputbox_container fieldset {
+  border: none !important;
+}
+
+.impact_inputbox_container .MuiInputBase-root input.MuiInputBase-input {
+  width: 100%;
+  min-width: 240px;
+  padding: 0px 12px;
+  height: 32px;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: $mainFontColor;
+  font-family: $fontFamily;
+  font-weight: $normalFontWeight;
+}
+
+.impact_inputbox_container .MuiInputBase-root {
+  width: 100%;
+  background: $whiteColor;
+  border: 1px solid $deactivateColor;
+  height: 32px;
+  border-radius: $borderRadius;
+  padding: 0px;
+}
+.impact_inputbox_container .MuiInputBase-root:hover {
+  border: 1px solid $primaryColor;
+}
+
+.impact_inputbox_container.impact_input_disabled .MuiInputBase-root {
+  border: 1px solid $disabledSecondaryBorder;
+  background: $inactiveInputBackground;
+}
+
+.impact_inputbox_container.impact_input_disabled .MuiInputBase-root:hover {
+  pointer-events: none !important;
+  border: 1px solid $disabledSecondaryBorder !important;
+}
+
+.impact_inputbox_container .MuiFormHelperText-root {
+  color: $grayBadge;
+  font-size: 10px;
+  margin-top: 6px;
+  background: url("../../assets/info-icon.svg") no-repeat;
+  background-size: 10px;
+  margin-left: 0;
+  padding-left: 15px;
+  line-height: 10px;
+  background-position: 0px 1px;
+}
+
+.impact_inputbox_container.impact_input_error .MuiFormHelperText-root {
+  background: url("../../assets/info-red.svg") no-repeat;
+}
+.impact_inputbox_container.impact_input_error .MuiInputBase-root {
+  border: 1px solid $redBadge;
+}
+
+.impact_inputbox_container.impact_input_error
+  .MuiInputBase-root
+  .MuiInputBase-input {
+  color: $redBadge;
+}
+
+.impact_inputbox_container.impact_input_error .MuiInputBase-root.Mui-focused {
+  box-shadow: none;
+  border: 1px solid $redBadge !important;
+}
+
+.impact_inputbox_container.impact_input_error .MuiFormHelperText-root {
+  color: $redBadge;
+}
+
+.impact_inputbox_container
+  .MuiInputBase-root:hover
+  .MuiOutlinedInput-notchedOutline {
+  border-color: $primaryColor;
+}
+.impact_inputbox_container
+  .MuiInputBase-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-width: 1px;
+}
+
+.impact_inputbox_container .MuiInputBase-root.Mui-focused {
+  box-shadow: none;
+  border: 1px solid $primaryColor !important;
+}
+
+.impact_inputbox_container_with_icons {
+  label {
+    color: $textButtonFontColor;
+    font-size: 12px;
+    line-height: 18px;
+    margin-bottom: 6px;
+    font-weight: $normalFontWeight;
+  }
+
+  .impact-input-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 0px 12px;
+    height: 32px;
+    width: 100%;
+    min-width: 240px;
+    border: 1px solid $deactivateColor;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: $mainFontColor;
+    font-family: $fontFamily;
+    font-weight: $normalFontWeight;
+    border-radius: 8px;
+    background-color: #fff;
+
+    .MuiInputBase-root {
+      width: 100%;
+      border: none;
+      height: 32px;
+      border-radius: $borderRadius;
+      padding: 0px;
+      font-size: 14px;
+      color: $mainFontColor;
+      font-family: $fontFamily;
+      font-weight: $normalFontWeight;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $textButtonFontColor;
+    }
+
+    &:hover {
+      border: 1px solid $primaryColor;
+    }
+
+    .MuiInputBase-root:hover {
+      border: none;
+    }
+
+    .MuiInputBase-root input.MuiInputBase-input {
+      height: inherit;
+      font-size: 14px;
+      color: $mainFontColor;
+      font-family: $fontFamily;
+      font-weight: $normalFontWeight;
+      line-height: 20px;
+      padding: 0 !important;
+      border: none;
+    }
+
+    .MuiInputBase-root input.MuiInputBase-input:hover {
+      border: none;
+    }
+
+    .MuiOutlinedInput-notchedOutline {
+      border: none;
+    }
+
+    .left-input-icon,
+    .right-input-icon {
+      cursor: pointer;
+    }
+  }
+}
+
+.MuiFormHelperText-root {
+  font-family: $fontFamily !important;
+  color: $inputInfoColor !important;
+  background: url("./../../assets/info-icon.svg") no-repeat;
+  background-position: 0 center;
+  margin-left: 0 !important;
+  padding-left: 14px;
+}
+
+.input-with-error {
+  .impact-input-wrapper {
+    color: $destructiveBg;
+    border: 1px solid $destructiveBg !important;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      color: $redBadge;
+    }
+
+    input.MuiInputBase-input {
+      color: $redBadge;
+    }
+  }
+
+  .MuiFormHelperText-root {
+    color: $redBadge;
+  }
+}
+.input-with-error .MuiFormHelperText-root {
+  color: $destructiveBg !important;
+  background: url("./../../assets/info-red.svg") no-repeat;
+  background-position: 0 center;
+}
+
+.input-with-disabled {
+  .impact-input-wrapper {
+    border: 1px solid $disabledSecondaryBorder;
+    background: $disabledSecondaryBg;
+    pointer-events: none !important;
+    &:hover {
+      border: 1px solid $disabledSecondaryBorder;
+    }
+  }
+  .MuiFormHelperText-root {
+    color: $lightGrayColor !important;
+    background: url("./../../assets/info-disabled.svg") no-repeat;
+    background-position: 0 center;
+  }
+}
+
+.icon-click-on-disabled {
+  .impact-input-wrapper {
+    pointer-events: auto !important;
+  }
+}
+
+.MuiOutlinedInput-root {
+  input::placeholder {
+    color: $lightGrayColor;
+    font-weight: $normalFontWeight;
+  }
+
+  &.Mui-focused input::placeholder {
+    color: $mainFontColor;
+    font-weight: $normalFontWeight;
+    opacity: 1;
+  }
+
+  .impact_input_error & {
+    input::placeholder {
+      color: $redBadge !important;
+    }
+  }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: auto;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

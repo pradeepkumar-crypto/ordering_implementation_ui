@@ -1,0 +1,62 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-buttonGroup {
+  height: $BigComponent;
+  text-transform: none;
+  color: #505c75;
+  font-family: $fontFamily;
+  font-weight: $normalFontWeight;
+  font-size: $normalFontSize;
+
+  &.ia-buttonGroup-disabled {
+    color: $lightGrayColor;
+    background-color: $disabledSecondaryBg;
+    border-color: $disabledSecondaryBorder;
+  }
+}
+
+.ia-styles.ia-buttonGroupButton {
+  font-family: $fontFamily;
+  border-radius: 0;
+  border-width: 0.5px;
+  border-color: $deactivateColor;
+  text-transform: none;
+  padding: 0 12px;
+  background-color: #fff;
+
+  &:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-left-width: 1px;
+  }
+  &:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-right-width: 1px;
+  }
+
+  &.ia-buttonGroupButton-withIcon {
+    display: flex;
+    gap: 2px;
+  }
+
+  &:hover {
+    color: $primaryColor;
+    background-color: white;
+  }
+  &:focus {
+    outline: none; //3px solid #eceefd
+  }
+
+  &.ia-buttonGroupButton-selected {
+    background-color: #eceefd;
+    border-color: $primaryColor;
+    color: $primaryColor;
+  }
+  &.ia-buttonGroupButton-disabled {
+    background-color: $disabledSecondaryBg;
+    border-color: $disabledSecondaryBorder;
+    color: $lightGrayColor;
+    outline: none;
+  }
+}

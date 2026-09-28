@@ -1,0 +1,377 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-btn {
+  font-size: 14px;
+  font-weight: 400;
+  font-family: $fontFamily;
+  height: $BigComponent;
+  min-width: 0;
+  text-transform: none;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: $primaryColor;
+  color: white;
+  padding: 6px 12px;
+
+  & svg {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    color: inherit !important;
+
+    & path {
+      fill: inherit !important;
+    }
+  }
+
+  &.ia-btn-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    svg {
+      color: inherit !important;
+      & path {
+        fill: inherit !important;
+      }
+    }
+    .ia-btn-loading-icon {
+      margin-right: 4px;
+    }
+  }
+  &.ia-btn-only-icon {
+    aspect-ratio: 1 / 1;
+  }
+
+  &.ia-btn-large {
+    height: $BigComponent;
+  }
+  &.ia-btn-medium {
+    height: $mediumComponent;
+    padding: 4px 12px;
+  }
+  &.ia-btn-small {
+    height: $smallComponent;
+    padding: 2px 12px;
+  }
+
+  &.ia-btn-contained {
+    border-width: 0;
+    &:hover {
+      color: white;
+      background-color: #29399f;
+    }
+    &:focus {
+      outline: 3px solid $lightBlueColor;
+    }
+    &.ia-btn-disabled {
+      background-color: $deactivateColor;
+      border-width: 0;
+      color: white;
+    }
+
+    & svg {
+      color: white !important;
+
+      & path {
+        fill: white !important;
+      }
+    }
+
+    &.ia-btn-destructive {
+      background-color: $destructiveBg;
+      color: white;
+      border-color: $deactivateColor;
+
+      &:hover {
+        background-color: $destructiveHoverBg;
+        border-color: $redBadgeStrokeBg;
+      }
+
+      &:focus {
+        outline: 3px solid $destructiveFocusOutline;
+        &:not(:hover) {
+          border-color: $redBadgeStrokeBg;
+        }
+      }
+
+      &.ia-btn-disabled {
+        background-color: $deactivateColor;
+        border-width: 0;
+        color: white;
+        & svg {
+          color: white !important;
+
+          & path {
+            fill: white !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.ia-btn-outlined {
+    border-color: $secondaryColor; //$deactivateColor;
+    background-color: white;
+    color: $secondaryColor; //$mainFontColor;
+    &:hover {
+      background-color: $lightBlueColor;
+      color: $secondaryColor;
+      border-color: $secondaryColor;
+      border-width: 1px;
+
+      & svg {
+        color: $secondaryColor !important; //$secondaryColor
+
+        & path {
+          fill: $secondaryColor !important;
+        }
+      }
+    }
+    &:focus {
+      outline: 3px solid $lightBlueColor;
+      &:not(:hover) {
+        border-color: $lightBlueColor;
+      }
+    }
+    &.ia-btn-disabled {
+      background-color: $disabledSecondaryBg;
+      border-color: $disabledSecondaryBorder;
+      color: $lightGrayColor;
+      & svg {
+        color: $lightGrayColor !important;
+        & path {
+          fill: $lightGrayColor !important;
+        }
+      }
+    }
+
+    & svg {
+      color: $secondaryColor !important; //$mainFontColor
+
+      & path {
+        fill: $secondaryColor !important; //$mainFontColor
+      }
+    }
+
+    &.ia-btn-destructive {
+      border-color: $deactivateColor;
+      background-color: white;
+      color: $mainFontColor;
+
+      &:hover {
+        background-color: $redBadgeStrokeBg;
+        color: $destructiveFocusOutline;
+        border-color: $destructiveFocusOutline;
+
+        & svg {
+          color: #e15554 !important;
+          & path {
+            fill: #e15554 !important;
+          }
+        }
+      }
+
+      &:focus {
+        outline: 3px solid $destructiveSecondaryFocusOutline;
+        color: #e15554;
+        background-color: #ffffff;
+        & svg {
+          color: #e15554 !important;
+          & path {
+            fill: #e15554 !important;
+          }
+        }
+        &:not(:hover) {
+          border-color: $redBadgeStrokeBg;
+        }
+      }
+
+      & svg {
+        color: #1f2b4d !important;
+        & path {
+          fill: #1f2b4d !important;
+        }
+      }
+
+      &.ia-btn-disabled {
+        border-color: $disabledSecondaryBorder;
+        background-color: $disabledSecondaryBg;
+        color: $lightGrayColor;
+        & svg {
+          color: $lightGrayColor !important;
+          & path {
+            fill: $lightGrayColor !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.ia-btn-text {
+    border-width: 0;
+    background-color: $textButtonPrimaryBg;
+    color: $textButtonFontColor;
+    &:hover {
+      border-width: 0;
+      background-color: $lightBlueColor;
+      color: $secondaryColor;
+
+      & svg {
+        color: $secondaryColor !important;
+
+        & path {
+          fill: $secondaryColor !important;
+        }
+      }
+    }
+    &:focus {
+      outline: 3px solid $lightBlueColor;
+    }
+    &.ia-btn-disabled {
+      border-width: 0;
+      color: $lightGrayColor;
+      background-color: $disabledSecondaryBg;
+      & svg {
+        color: $lightGrayColor !important;
+        & path {
+          fill: $lightGrayColor !important;
+        }
+      }
+    }
+
+    & svg {
+      color: $textButtonFontColor !important;
+
+      & path {
+        fill: $textButtonFontColor !important;
+      }
+    }
+  }
+
+  &.ia-btn-link {
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    color: $primaryColor;
+    &:hover {
+      text-decoration: underline;
+      background-color: transparent;
+    }
+
+    &.ia-btn-disabled {
+      border: none;
+      color: $lightGrayColor;
+      background-color: transparent;
+      & svg {
+        color: $lightGrayColor !important;
+        & path {
+          fill: $lightGrayColor !important;
+        }
+      }
+    }
+
+    & svg {
+      color: $primaryColor !important;
+
+      & path {
+        fill: $primaryColor !important;
+      }
+    }
+  }
+
+  &.ia-btn-tertiary {
+    border-color: $deactivateColor;
+    background-color: white;
+    color: $mainFontColor;
+    &:hover {
+      background-color: $lightBlueColor;
+      color: $secondaryColor;
+      border-color: $secondaryColor;
+      border-width: 1px;
+
+      & svg {
+        color: $secondaryColor !important; //$secondaryColor
+
+        & path {
+          fill: $secondaryColor !important;
+        }
+      }
+    }
+    &:focus {
+      outline: 3px solid $lightBlueColor;
+      &:not(:hover) {
+        border-color: $lightBlueColor;
+      }
+    }
+    &.ia-btn-disabled {
+      background-color: $disabledSecondaryBg;
+      border-color: $disabledSecondaryBorder;
+      color: $lightGrayColor;
+      & svg {
+        color: $lightGrayColor !important;
+        & path {
+          fill: $lightGrayColor !important;
+        }
+      }
+    }
+
+    & svg {
+      color: #1f2b4d !important; //$mainFontColor
+
+      & path {
+        fill: #1f2b4d !important; //$mainFontColor
+      }
+    }
+  }
+}
+
+.ia-btn-loading-icon {
+  display: flex;
+
+  @keyframes loader {
+    0% {
+      transform: rotate(45deg);
+    }
+    100% {
+      transform: rotate(405deg);
+    }
+  }
+
+  .ia-btn-loading-track {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 50%;
+    animation-name: loader;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+
+    &.ia-btn-loading-light {
+      border-color: hsl(222, 11%, 53%, 25%);
+      border-top-color: $grayBadge;
+    }
+    &.ia-btn-loading-dark {
+      border-color: hsl(233, 81%, 96%, 25%);
+      border-top-color: white;
+    }
+  }
+}
+
+.ia-btn-icon {
+  width: 16px;
+  height: 16px;
+  margin-bottom: 3px;
+}
+
+.ia-btn-icon-loading {
+  margin-bottom: 0;
+  height: 14px;
+}

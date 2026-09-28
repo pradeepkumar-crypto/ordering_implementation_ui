@@ -1,0 +1,67 @@
+.MuiChip-root.impact_badges_only_label_subtle {
+  height: 24px;
+  background: $subtleDefaultColor;
+  padding: 0 8px;
+  max-width: max-content;
+  cursor: default;
+  .MuiChip-label {
+    padding: 0px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    font-family: $fontFamily;
+    color: $grayBadge;
+  }
+  &.small-badge {
+    height: 20px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    cursor: default !important;
+  }
+
+  &:hover {
+    background: $subtleDefaultColor;
+  }
+}
+
+.MuiChip-root.info-badge-subtle {
+  background: $subtleInfoColor;
+  .MuiChip-label {
+    color: $primaryBadge;
+  }
+  &:hover {
+    background: $subtleInfoColor;
+  }
+}
+
+.MuiChip-root.success-badge-subtle {
+  background: $subtleSuccessColor;
+  .MuiChip-label {
+    color: $subtleSuccessFontColor;
+  }
+  &:hover {
+    background: $subtleSuccessColor;
+  }
+}
+
+.MuiChip-root.warning-badge-subtle {
+  background: $subtleWarningColor;
+  .MuiChip-label {
+    color: $yellowBadgeOutlined;
+  }
+  &:hover {
+    background: $subtleWarningColor;
+  }
+}
+
+.MuiChip-root.error-badge-subtle {
+  background: $subtleErrorColor;
+  .MuiChip-label {
+    color: $subtleErrorFontColor;
+  }
+  &:hover {
+    background: $subtleErrorColor;
+  }
+}

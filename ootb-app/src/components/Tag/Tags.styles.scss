@@ -1,0 +1,71 @@
+@import "../../styles/index.scss";
+
+.MuiChip-root.impact-tag {
+  border: 1px solid $accordionBgBackground;
+  color: $textButtonFontColor;
+
+  .MuiSvgIcon-root {
+    width: 16px;
+    margin-right: -9px;
+    color: $textButtonFontColor;
+    margin-left: 10px;
+  }
+  .MuiChip-deleteIcon {
+    margin-right: 10px;
+    margin-left: -5px;
+    // background: url("./../../../assets/images/close-tags.svg") no-repeat;
+    background-size: 16px;
+    background-position: center;
+  }
+}
+
+.MuiChip-root.impact-tag-solid {
+  border-radius: 8px;
+  background: $lightBlueColor;
+  color: $mainFontColor;
+  border: none;
+
+  &:hover {
+    background: $lightBlueColor;
+  }
+}
+
+.MuiChip-root.impact-tag:hover {
+  background: $whiteColor;
+  border: 1px solid $accordionBgBackground;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.12);
+}
+
+.MuiChip-root.impact-tag.MuiChip-outlined {
+  background-color: #fff;
+  border: 1px solid #b3bdf8;
+}
+
+.impact-tag-large {
+  height: 32px !important;
+  .MuiChip-label {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+  }
+}
+
+.impact-tag-medium {
+  height: 24px !important;
+  .MuiChip-label {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+.impact-tag-small {
+  height: 22px !important;
+  .MuiChip-label {
+    font-size: 12px;
+    line-height: 15px;
+  }
+}
+
+.active_tags {
+  background: yellow;
+}

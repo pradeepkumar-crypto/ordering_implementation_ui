@@ -1,0 +1,30 @@
+.MuiChip-root.impact_badges_icon_label_stroke {
+  height: 24px;
+  border: 1px solid $grayBadge;
+  padding: 0 8px;
+  max-width: max-content;
+  background: $whiteColor;
+  cursor: default;
+  .MuiChip-label {
+    padding: 0px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    font-family: $fontFamily;
+    color: $grayBadge;
+  }
+  &.small-badge {
+    height: 20px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+    color: $grayBadge;
+    font-size: 14px !important;
+    margin: 0 5px 0 0px !important;
+  }
+
+  &:hover {
+    background: $whiteColor;
+  }
+}

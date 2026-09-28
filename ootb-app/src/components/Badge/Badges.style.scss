@@ -1,0 +1,55 @@
+/* Toast starts here  */
+@import "../../styles/index.scss";
+
+// for filled badges
+@import "./filled/filledIconLabelBadges/filledIconLabelBadges.styles.scss";
+@import "./filled/filledOnlyIconBadges/filledOnlyIconBadges.styles.scss";
+@import "./filled/filledOnlyLabelBadges/filledOnlyLabelBadges.styles.scss";
+
+// for stroke badges
+@import "./stroke/strokeIconLabelBadges/strokeIconLabelBadges.styles.scss";
+@import "./stroke/strokeOnlyIconBadges/strokeOnlyIconBadges.styles.scss";
+@import "./stroke/strokeOnlyLabelBadges/strokeOnlyLabelBadges.styles.scss";
+
+//for subtle badges
+
+@import "./subtle/subtleIconLabelBadges/subtleIconLabelBadges.scss";
+@import "./subtle/subtleIOnlyIconBadges/subtleIOnlyIconBadges.scss";
+@import "./subtle/subtleOnlyLabelBadges/subtleOnlyLabelBadges.scss";
+
+.MuiChip-root {
+  font-family: $fontFamily !important;
+
+  &.Mui-disabled {
+    background-color: $disabledSecondaryBg !important;
+    opacity: 1 !important;
+
+    .MuiChip-label {
+      color: $lightGrayColor !important;
+    }
+
+    svg {
+      color: $lightGrayColor !important;
+    }
+  }
+}
+
+.MuiChip-root.impact_badges_only_label_filled.small-badge,
+.MuiChip-root.impact_badges_only_label_stroke.small-badge,
+.MuiChip-root.impact_badges_only_label_subtle.small-badge,
+.MuiChip-root.impact_badges_icon_label_filled,
+.MuiChip-root.impact_badges_icon_label_stroke,
+.MuiChip-root.impact_badges_icon_label_subtle {
+  .MuiChip-label {
+    font-size: 12px;
+  }
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.MuiChip-root.impact_badges_only_label_stroke.Mui-disabled,
+.MuiChip-root.impact_badges_icon_label_stroke.Mui-disabled {
+  border-color: #d9dde7 !important;
+}

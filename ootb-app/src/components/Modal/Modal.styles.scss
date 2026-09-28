@@ -1,0 +1,126 @@
+@import "../../styles/index.scss";
+
+.ia_modalPopover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+
+  &.is-bottom-sheet {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100% !important;
+    height: 465px !important;
+    border-radius: 16px 16px 0 0;
+    transition: height 0.3s ease-in-out;
+
+    &.expanded {
+      height: auto !important;
+      top: 100px;
+    }
+  }
+
+  .ia_modalHeader {
+    background: $lightBlueColor;
+    padding: 16px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .ia_modalHeading {
+      color: $darkColor;
+      font-size: 16px;
+      font-weight: $BoldFontWeight;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .expand_icon,
+    .collapse_icon,
+    .close_icon {
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .expand_icon {
+      background: url("../../assets/expand-icon.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .collapse_icon {
+      background: url("../../assets/collapse-icon-2.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 16px;
+      height: 16px;
+    }
+
+    .close_icon {
+      background: url("../../assets/close.svg") no-repeat;
+      background-size: 16px;
+      background-position: center;
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  .ia_modalBody {
+    padding: 16px;
+    padding-top: 24px;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    top: 48px;
+    bottom: 56px;
+    overflow: auto;
+    font-size: 14px;
+    line-height: 22px;
+    flex: 1;
+  }
+
+  .ia_modalFooter {
+    height: 56px;
+    border-top: 1px solid #d9dde7;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-right: 16px;
+    gap: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  &.ia_modal_small {
+    width: 526px;
+    height: 304px;
+  }
+  &.ia_modal_medium {
+    width: 800px;
+    height: 532px;
+  }
+  &.ia_modal_large {
+    inset: 100px;
+  }
+}

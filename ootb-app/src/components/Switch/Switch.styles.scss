@@ -1,0 +1,86 @@
+@import "../../styles/index.scss";
+
+.ia-styles.ia-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  .ia-switch-label {
+    font-family: $fontFamily;
+    font-size: $normalFontSize;
+    font-weight: $normalFontWeight;
+    line-height: 17.5px;
+    text-align: left;
+    color: $textButtonFontColor;
+    &.ia-switch-disabled {
+      color: $lightGrayColor;
+    }
+  }
+}
+
+.ia-styles.ia-switch {
+  position: relative;
+  width: 24px;
+  padding: 0;
+  height: 16px;
+
+  .MuiButtonBase-root.MuiSwitch-switchBase {
+    background-color: transparent !important;
+  }
+
+  .MuiSwitch-thumb {
+    top: 3px;
+    position: absolute;
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    box-shadow: none;
+    color: $deactivateColor;
+  }
+
+  .Mui-checked {
+    transform: translateX(10px);
+    color: $primaryColor !important;
+
+    .MuiSwitch-thumb {
+      color: $primaryColor;
+      left: 13px;
+    }
+  }
+  .Mui-checked + .MuiSwitch-track {
+    background-color: $lightBlueColor !important;
+    border: 1px solid $accordionBgBackground;
+  }
+
+  .MuiButtonBase-root {
+    color: $lightGrayColor;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 24px;
+    margin: auto;
+    padding: 0;
+  }
+
+  .MuiSwitch-track {
+    background-color: $whiteColor;
+    opacity: 1;
+    height: 16px;
+    width: 24px;
+    border-radius: 8px;
+    border: 1px solid $deactivateColor;
+  }
+
+  &.ia-switch-disabled {
+    .MuiSwitch-thumb {
+      color: $disabledSecondaryBorder;
+    }
+
+    .MuiSwitch-track {
+      background-color: $disabledSecondaryBg !important;
+      opacity: 1 !important;
+      border-color: $disabledSecondaryBorder;
+    }
+  }
+}

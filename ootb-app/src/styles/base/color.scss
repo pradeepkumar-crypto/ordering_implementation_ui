@@ -1,0 +1,109 @@
+// Color palette
+// Primary colors which is used for all the major CTAs
+$primaryColor: #4259ee;
+
+// Secondary color which is used for all the hovers of primary and other places
+$secondaryColor: #3649c6;
+
+// Light blue color which is used for hover
+$lightBlueColor: #eceefd;
+
+// Gray Background color used for deactivate button background,font,borders
+$deactivateColor: #c3c8d4;
+$lightGrayColor: #b4bac7;
+$darkGrayColor: #d4d4d4;
+$lightGrayFontColor: #c7c7c7;
+$disabledSecondaryBorder: #d9dde7;
+$disabledSecondaryBg: #f8f9fb;
+
+$textButtonPrimaryBg: #f5f6fa;
+$accordionBgBackground: #b3bdf8;
+$inactiveInputBackground: #f2f4fb;
+$menuBorderColor: #f0f0f0;
+$tableBgHoverColor: #f1f4f9;
+$accrodionBorderColor: #eff2fa;
+
+// Alerts colors#f5f6fa
+$successStroke: #c4e8d5;
+$successBackground: #ebf7f1;
+$successToastStroke: #89d1ab;
+$successIconColor: #3bb273;
+
+$infoStroke: #c6cdfb;
+$infoBackground: #e2f4ff;
+
+$warningStroke: #ffe770;
+$warningBackground: #fff8d5;
+$warningAlertIcon: #e1bc29;
+
+$errorStroke: #f3c1c0;
+$errorBackground: #feeaf3;
+
+$tableLavendarStroke: #ad97ce;
+
+$redText: #ab3939;
+// Font colors
+$mainFontColor: #1f2b4d;
+$textButtonFontColor: #60697d;
+
+// Global colors
+
+$whiteColor: #ffffff;
+$offWhiteColor: #f5f5f5;
+$darkColor: #0d152c;
+$offDarkColor: #0d152c;
+$blackColor: #000;
+$stepperBackground: #acacac;
+$StepperFontColor: #7c7c7c;
+$StepperBorder: #ebebf0;
+
+// Borders
+$borderRadius: 8px;
+$borderRadiusLarge: 16px;
+
+// Stepper
+$stepperBackground: #acacac;
+$StepperBorder: #ebebf0;
+$StepperFontColor: #7c7c7c;
+
+// Toast Colors
+$primaryBadge: #5267f4;
+$grayBadge: #5f6673;
+$redBadge: #ec4c5c;
+$yellowBadge: #ffe174;
+$yellowBadgeDark: #9d831c;
+$greenBadge: #108431;
+$greenBadgeDark: #26734b;
+$redBadgeStrokeBg: #fceeee;
+$yellowBadgeStrokeBg: #fcf8ea;
+$greenBadgeStrokeBg: #ebf7f1;
+$yellowBadgeOutlined: #8c6f06;
+
+// Destructive Colors
+$destructiveBg: #e15554;
+$destructiveHoverBg: #ab3939;
+$destructiveFocusOutline: #e15554;
+
+$destructiveSecondaryBg: #c3c8d4;
+$destructiveSecondaryFocusOutline: #eceefd;
+
+//Subtle badge colors
+
+$subtleDefaultColor: #f2f3f4;
+$subtleInfoColor: #f1f3fe;
+$subtleSuccessColor: #f4fff7;
+$subtleWarningColor: #fdfae9;
+$subtleErrorColor: #fef4f5;
+$subtleSuccessFontColor: #0b832f;
+$subtleErrorFontColor: #d62f2d;
+
+//Input box colors
+
+$inputInfoColor: #7a8294;
+$tableTotalBgColor: #f4f1f9;
+
+//chatbot colors
+$chatbotBgColor: #0f1937;
+
+//Avatar colors
+$avatarBgColor: #31935f;
