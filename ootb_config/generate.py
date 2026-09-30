@@ -468,6 +468,19 @@ def main():
     # ---- assemble template ------------------------------------------------
     tpl = open(TEMPLATE_PATH, encoding="utf-8").read()
 
+    # How It Works content is hand-written prose and can't be generated from
+    # the CSVs, but any table name it bolds (<b>table_name</b>) can be
+    # checked against the current data set, so a rename/removal in tasks.csv
+    # gets caught here instead of silently going stale in the docs.
+    doc_start = tpl.find("var DOC_CONTENT")
+    doc_end = tpl.find("var HIW_ORDER", doc_start)
+    if doc_start != -1 and doc_end != -1:
+        doc_block = tpl[doc_start:doc_end]
+        referenced = set(re.findall(r"<b>([a-z][a-z0-9]*(?:_[a-z0-9]+)+)</b>", doc_block))
+        for name in sorted(referenced - known_names):
+            warn("template.html: How It Works content references '%s' in <b>...</b>, but it is not a "
+                 "current task or external dependency — the doc text may be stale." % name)
+
     def js(value):
         return json.dumps(value, ensure_ascii=False)
 

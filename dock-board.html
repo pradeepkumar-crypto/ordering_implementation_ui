@@ -3109,11 +3109,25 @@
         return wrap;
       }
       if(hasAny(q,["module mapping"])){
-        chatP(wrap, "Module Mapping is still marked “coming soon” in the sidebar — everything else, including Build Queries, is live.");
+        var mmDef = NAV_DEFS.filter(function(d){ return d.label.toLowerCase()==="module mapping"; })[0];
+        var mmLive = NAV_DEFS.filter(function(d){ return !d.soon; }).map(function(d){ return d.label; });
+        if(mmDef && mmDef.soon){
+          chatP(wrap, "Module Mapping is still marked “coming soon” in the sidebar — everything else ("+mmLive.join(", ")+") is live.");
+        }else if(mmDef){
+          chatP(wrap, "Module Mapping is live now, along with "+mmLive.filter(function(l){ return l!=="Module Mapping"; }).join(", ")+".");
+        }else{
+          chatP(wrap, "There's no Module Mapping page right now.");
+        }
         return wrap;
       }
       if(hasAny(q,["coming soon"])){
-        chatP(wrap, "Execution Flow, Table Explorer, Schemas and Build Queries are all live now — only Module Mapping is still marked “coming soon”.");
+        var soonDefs = NAV_DEFS.filter(function(d){ return d.soon; }).map(function(d){ return d.label; });
+        var liveDefs = NAV_DEFS.filter(function(d){ return !d.soon; }).map(function(d){ return d.label; });
+        if(!soonDefs.length){
+          chatP(wrap, liveDefs.join(", ")+" are all live now — nothing is marked “coming soon”.");
+        }else{
+          chatP(wrap, liveDefs.join(", ")+" "+(liveDefs.length>1?"are":"is")+" live now — only "+soonDefs.join(", ")+" "+(soonDefs.length>1?"are":"is")+" still marked “coming soon”.");
+        }
         return wrap;
       }
       if(intent.query){
